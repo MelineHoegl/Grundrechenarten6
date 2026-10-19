@@ -1,0 +1,2163 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rechen-Gipfel 6</title>
+<meta name="description" content="Digitale Lernwelt für die 6. Klasse der Mittelschule in Bayern: schriftlich rechnen und Kopfrechnen mit Dezimalzahlen, Addieren und Subtrahieren mit rationalen Zahlen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;700;800&display=swap">
+<style>
+/* Rechen-Gipfel
+   Layout: eine Spalte auf Karopapier; beim Üben links die Aufgabe, rechts Gamsi, Zahlenfeld und Knöpfe.
+   Farben der vier Berge wie auf den Merkplakaten: Plus grün, Minus blau, Mal pink, Geteilt orange. */
+:root {
+  --paper: #fbfcfe;
+  --grid: #e3eaf3;
+  --card: #ffffff;
+  --fg: #1c2433;
+  --muted: #5a6476;
+  --line: #c7d1de;
+  --ink: #1d4fa8;            /* Füller-Blau für eigene Eingaben */
+  --red: #c42a40;            /* Korrekturrot */
+  --red-soft: #fde4e8;
+  --ok: #24794f;
+  --ok-soft: #dcf2e5;
+  --sun: #f2ad00;
+  --sun-soft: #fff2c7;
+  --snow: #ffffff;
+  --add: #5e9a1c;  --add-soft: #e9f4d6;
+  --sub: #1a86c2;  --sub-soft: #d9eefa;
+  --mul: #cf3f84;  --mul-soft: #fbdeec;
+  --div: #dd6b12;  --div-soft: #fde5d0;
+  --accent: var(--add);
+  --accent-soft: var(--add-soft);
+  --shadow: 0 2px 0 rgba(28, 36, 51, .08), 0 8px 24px rgba(28, 36, 51, .06);
+  --font-display: 'Baloo 2', 'Andika', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Andika', 'Segoe UI', system-ui, sans-serif;
+  --cell: clamp(36px, 9vw, 54px);
+  --radius: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #131a27; --grid: #1c2638; --card: #1a2333; --fg: #e9edf4; --muted: #a4aec0; --line: #34425a;
+    --ink: #8fb4ff; --red: #ff7d8f; --red-soft: #43202a; --ok: #59d08f; --ok-soft: #173a29; --sun: #ffc93d; --sun-soft: #3f3313; --snow: #dce5f2;
+    --add: #8ccf45; --add-soft: #253517; --sub: #4fb6ee; --sub-soft: #15304a; --mul: #f070ad; --mul-soft: #3d1a2c; --div: #ff9a4d; --div-soft: #3f2614;
+    --shadow: 0 2px 0 rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #131a27; --grid: #1c2638; --card: #1a2333; --fg: #e9edf4; --muted: #a4aec0; --line: #34425a;
+  --ink: #8fb4ff; --red: #ff7d8f; --red-soft: #43202a; --ok: #59d08f; --ok-soft: #173a29; --sun: #ffc93d; --sun-soft: #3f3313; --snow: #dce5f2;
+  --add: #8ccf45; --add-soft: #253517; --sub: #4fb6ee; --sub-soft: #15304a; --mul: #f070ad; --mul-soft: #3d1a2c; --div: #ff9a4d; --div-soft: #3f2614;
+  --shadow: 0 2px 0 rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+[data-op="add"] { --accent: var(--add); --accent-soft: var(--add-soft); }
+[data-op="sub"] { --accent: var(--sub); --accent-soft: var(--sub-soft); }
+[data-op="mul"] { --accent: var(--mul); --accent-soft: var(--mul-soft); }
+[data-op="div"] { --accent: var(--div); --accent-soft: var(--div-soft); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--fg);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 26px 26px;
+  min-height: 100vh;
+}
+[hidden] { display: none !important; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.screen { display: flex; flex-direction: column; gap: 20px; animation: rise .35s ease both; }
+@keyframes rise { from { transform: translateY(8px); opacity: .4; } to { transform: none; opacity: 1; } }
+
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(44px, 8vw, 76px); font-weight: 800; letter-spacing: -.01em; }
+.eyebrow { margin: 0; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+.lead { margin: 0; font-size: 18px; color: var(--muted); max-width: 58ch; }
+.pick-title { font-size: 26px; font-weight: 700; }
+
+/* ---------- Start ---------- */
+.hero { display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.hero-text { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1 1 380px; }
+.hero-side { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.score-pill { font-family: var(--font-display); font-weight: 700; font-size: 18px; background: var(--sun-soft); color: var(--fg); border: 2px solid var(--sun); border-radius: 999px; padding: 2px 16px; font-variant-numeric: tabular-nums; }
+
+.op-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 860px) { .op-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .op-grid { grid-template-columns: minmax(0, 1fr); } }
+.op-card {
+  display: flex; flex-direction: column; gap: 6px; text-align: left;
+  background: var(--card); border: 3px solid var(--accent); border-radius: var(--radius);
+  padding: 0 0 16px; cursor: pointer; overflow: hidden; box-shadow: var(--shadow);
+  transition: transform .15s ease;
+}
+.op-card:hover { transform: translateY(-3px); }
+.op-card svg { display: block; width: 100%; height: auto; max-height: 130px; background: var(--accent-soft); }
+@media (max-width: 420px) { .op-card svg { height: 110px; } }
+.op-card .op-name { font-family: var(--font-display); font-weight: 800; font-size: 26px; padding: 4px 16px 0; color: var(--fg); }
+.op-card .op-sub { padding: 0 16px; color: var(--muted); font-size: 15px; }
+.op-card .op-progress { padding: 4px 16px 0; font-size: 14px; font-weight: 700; color: var(--accent); }
+
+.home-foot { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+.link-btn { background: none; border: 0; padding: 4px 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 15px; }
+.reset-confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 15px; }
+
+/* ---------- Auswahl Verfahren / Stufe ---------- */
+.crumbs { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; color: var(--muted); font-weight: 700; }
+.back-btn { background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; font-weight: 700; }
+.back-btn:hover { border-color: var(--accent); }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 680px) { .choice-grid { grid-template-columns: minmax(0, 1fr); } }
+.choice {
+  display: flex; flex-direction: column; gap: 10px; text-align: left; cursor: pointer;
+  background: var(--card); border: 3px solid var(--accent); border-radius: var(--radius);
+  padding: 20px; box-shadow: var(--shadow); min-width: 0; transition: transform .15s ease;
+}
+.choice:hover { transform: translateY(-3px); }
+.choice h3 { font-size: 30px; font-weight: 800; }
+.choice p { margin: 0; color: var(--muted); }
+.choice .example { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; font-size: 18px; font-variant-numeric: tabular-nums; overflow-x: auto; }
+.choice .example pre { margin: 0; font-family: var(--font-body); font-size: 18px; line-height: 1.3; }
+.trail { display: flex; gap: 6px; align-items: flex-end; flex-wrap: wrap; }
+.hut { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.hut svg { width: 40px; height: 34px; }
+.trail-note { font-size: 14px; font-weight: 700; color: var(--accent); }
+
+/* ---------- Üben ---------- */
+.play-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.play-info { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; background: var(--accent); color: var(--card); font-weight: 700; border-radius: 999px; padding: 3px 14px; font-size: 15px; }
+.badge.soft { background: var(--accent-soft); color: var(--fg); }
+.play-score { font-family: var(--font-display); font-weight: 700; font-size: 20px; font-variant-numeric: tabular-nums; }
+.dots { display: flex; gap: 8px; }
+.dot { width: 34px; height: 10px; border-radius: 6px; background: var(--line); }
+.dot.now { background: var(--sun); }
+.dot.ok { background: var(--ok); }
+.dot.meh { background: var(--accent); opacity: .55; }
+.dot.bonus { outline: 2px dashed var(--sun); outline-offset: 2px; }
+
+.play-main { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+@media (max-width: 860px) { .play-main { grid-template-columns: minmax(0, 1fr); } }
+.task-card { background: var(--card); border: 3px solid var(--accent); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow); min-width: 0; }
+.task-kicker { margin: 0; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.task-title { font-size: clamp(28px, 5vw, 40px); font-weight: 800; font-variant-numeric: tabular-nums; }
+.work { overflow-x: auto; padding: 4px 2px 8px; }
+
+.sach { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.sach p { margin: 0; font-size: 18px; max-width: 62ch; }
+.sach .q { font-weight: 700; }
+.opt-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.opt { background: var(--card); border: 2px solid var(--line); border-radius: 12px; padding: 8px 16px; font-size: 20px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+.opt:hover { border-color: var(--accent); }
+.opt.wrong { border-color: var(--red); background: var(--red-soft); animation: shake .3s; }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.answer-box { background: var(--ok-soft); border: 2px solid var(--ok); border-radius: 14px; padding: 12px 16px; font-size: 18px; }
+.answer-box b { font-family: var(--font-display); }
+
+/* Rechenkästchen */
+.grid { display: grid; grid-template-columns: repeat(var(--cols), var(--cell)); width: max-content; }
+.cell {
+  width: var(--cell); height: var(--cell);
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  font-size: calc(var(--cell) * .58); font-weight: 700; line-height: 1;
+  background: transparent; padding: 0; font-variant-numeric: tabular-nums;
+}
+.cell.first { border-left: 1px solid var(--line); }
+.cell.top { border-top: 1px solid var(--line); }
+.cell.rule { border-top: 4px solid var(--fg); }
+.cell.sign { color: var(--fg); }
+.cell.small { font-size: calc(var(--cell) * .36); color: var(--muted); }
+.cell.in { background: var(--card); color: var(--ink); cursor: pointer; border-radius: 0; border-left: 0; border-top-style: solid; }
+.cell.in:hover { background: var(--sun-soft); }
+.cell.sel { box-shadow: inset 0 0 0 3px var(--sun); background: var(--sun-soft); }
+.cell.ok { background: var(--ok-soft); }
+.cell.bad { background: var(--red-soft); }
+.cell.shown { color: var(--red); }
+.cell.mark { color: var(--ink); }
+.cell.hl { background: var(--sun-soft); }
+.cell.ul { border-bottom: 3px solid var(--fg); }
+.cell.down { color: var(--accent); }
+.grid-legend { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+
+/* Rechnen in Schritten */
+.steps { display: flex; flex-direction: column; gap: 10px; }
+.hs-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: clamp(22px, 4vw, 28px); font-weight: 700; font-variant-numeric: tabular-nums; }
+.hs-row.final { border-top: 3px solid var(--fg); padding-top: 10px; margin-top: 4px; }
+.slot {
+  min-width: calc(var(--w) * 0.75em + 0.8em); height: 1.7em; padding: 0 .3em;
+  border: 2px dashed var(--line); border-radius: 10px; background: var(--card); color: var(--ink);
+  font-weight: 700; font-size: inherit; cursor: pointer; text-align: right; font-variant-numeric: tabular-nums;
+}
+.slot.given { border-style: solid; border-color: transparent; background: var(--accent-soft); color: var(--fg); cursor: default; }
+.slot.sel { border-style: solid; border-color: var(--sun); background: var(--sun-soft); }
+.slot.ok { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.slot.bad { border-style: solid; border-color: var(--red); background: var(--red-soft); }
+.slot.shown { color: var(--red); }
+.ref { color: var(--muted); min-width: 1.5em; text-align: right; }
+
+/* Division Schritt für Schritt */
+.div-prompt { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--sun-soft); border-radius: 14px; padding: 10px 14px; font-size: 20px; font-weight: 700; }
+.div-prompt .slot { min-width: 3.2em; }
+.div-done { background: var(--ok-soft); }
+
+/* Seitenleiste */
+.side { display: flex; flex-direction: column; gap: 14px; }
+.coach { display: flex; gap: 10px; align-items: flex-start; }
+.bubble {
+  position: relative; flex: 1; min-width: 0; background: var(--card); border: 2px solid var(--line);
+  border-radius: 16px; padding: 10px 14px; font-size: 16px; min-height: 64px;
+}
+.bubble.good { border-color: var(--ok); background: var(--ok-soft); }
+.bubble.oops { border-color: var(--red); background: var(--red-soft); }
+.bubble.tip { border-color: var(--sun); background: var(--sun-soft); }
+.bubble ol { margin: 6px 0 0; padding-left: 20px; }
+.bubble li { margin: 2px 0; font-size: 15px; }
+
+.pad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.key {
+  height: 56px; border-radius: 14px; border: 2px solid var(--line); background: var(--card);
+  font-family: var(--font-display); font-size: 26px; font-weight: 700; cursor: pointer; touch-action: manipulation;
+}
+.key:hover { border-color: var(--accent); }
+.key:active { transform: translateY(1px); background: var(--accent-soft); }
+.key.wide { grid-column: span 2; }
+.key.fn { font-size: 18px; color: var(--muted); }
+.actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
+.btn {
+  border-radius: 14px; border: 2px solid transparent; padding: 12px 18px; cursor: pointer;
+  font-family: var(--font-display); font-weight: 700; font-size: 20px;
+}
+.btn.primary { background: var(--accent); color: var(--card); }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.ghost { background: var(--card); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn.small { font-size: 15px; padding: 6px 12px; border-radius: 10px; }
+.btn.danger { background: var(--red); color: var(--card); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Maskottchen */
+.mascot { width: 120px; height: 120px; }
+.mascot.small { width: 64px; height: 64px; flex-shrink: 0; }
+.mascot.big { width: 150px; height: 150px; }
+.mascot svg { width: 100%; height: 100%; }
+.mascot.hop svg { animation: hop .5s ease; }
+@keyframes hop { 40% { transform: translateY(-10px) rotate(-4deg); } }
+
+/* Rundenende */
+.done-card { background: var(--card); border: 3px solid var(--accent); border-radius: var(--radius); padding: 28px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; box-shadow: var(--shadow); }
+.done-card h2 { font-size: clamp(30px, 6vw, 46px); font-weight: 800; }
+.done-stars { display: flex; gap: 8px; }
+.done-stars svg { width: 56px; height: 56px; }
+.done-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+.noscript { padding: 20px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Klasse 6: Dezimalzahlen und rationale Zahlen ---------- */
+:root { --ratadd: #0d8a86; --ratadd-soft: #d5f1ef; --ratsub: #6b4fc8; --ratsub-soft: #e7e1fa; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ratadd: #3fd0c9; --ratadd-soft: #123634; --ratsub: #a891ff; --ratsub-soft: #2a2148; } }
+:root[data-theme="dark"] { --ratadd: #3fd0c9; --ratadd-soft: #123634; --ratsub: #a891ff; --ratsub-soft: #2a2148; }
+[data-op="ratadd"] { --accent: var(--ratadd); --accent-soft: var(--ratadd-soft); }
+[data-op="ratsub"] { --accent: var(--ratsub); --accent-soft: var(--ratsub-soft); }
+.world-title { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.world-note { margin: -12px 0 0; color: var(--muted); }
+.op-grid.two { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 860px) { .op-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 420px) { .op-grid.two { grid-template-columns: minmax(0, 1fr); } }
+.cell.comma { font-weight: 800; color: var(--fg); }
+.cell.fill { color: var(--accent); }
+.combo { display: flex; flex-direction: column; gap: 18px; }
+.combo-part { display: flex; flex-direction: column; gap: 8px; }
+.combo-label { margin: 0; font-weight: 700; color: var(--accent); }
+.div-original { font-size: clamp(26px, 5vw, 34px); font-weight: 800; font-variant-numeric: tabular-nums; }
+.div-wrap { display: flex; flex-direction: column; gap: 12px; }
+.hint-visual { overflow-x: auto; background: var(--sun-soft); border-radius: 14px; padding: 8px; }
+.hint-visual svg { display: block; width: 100%; min-width: 480px; height: auto; }
+.hint-visual p { margin: 0 4px 4px; font-size: 15px; font-weight: 700; }
+
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Startseite: Rechenart wählen -->
+  <section id="screen-home" class="screen" aria-labelledby="home-title">
+    <header class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Dezimalzahlen und rationale Zahlen · 6. Klasse</p>
+        <h1 id="home-title">Rechen-Gipfel 6</h1>
+        <p class="lead">Wähle einen Berg und steig von Hütte zu Hütte bis zum Gipfel. Mit jeder geschafften Runde werden die Aufgaben schwerer.</p>
+      </div>
+      <div class="hero-side">
+        <div class="mascot" id="home-mascot" aria-hidden="true"></div>
+        <div class="score-pill" id="home-points" aria-live="polite">0 Punkte</div>
+      </div>
+    </header>
+    <h2 class="pick-title">1. Was möchtest du üben?</h2>
+    <h3 class="world-title">Dezimalzahlen</h3>
+    <div class="op-grid" id="op-grid"></div>
+    <h3 class="world-title">Rationale Zahlen</h3>
+    <p class="world-note">Rechnen mit negativen Zahlen, zum Beispiel −8 + 5 oder −13 − 3.</p>
+    <div class="op-grid two" id="op-grid-rat"></div>
+    <footer class="home-foot">
+      <button type="button" class="link-btn" id="reset-btn">Fortschritt löschen</button>
+      <div id="reset-confirm" class="reset-confirm" hidden>
+        <span>Wirklich alle Hütten und Punkte löschen?</span>
+        <button type="button" class="btn small danger" id="reset-yes">Ja, löschen</button>
+        <button type="button" class="btn small ghost" id="reset-no">Abbrechen</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- Verfahren wählen -->
+  <section id="screen-mode" class="screen" hidden aria-labelledby="mode-title">
+    <nav class="crumbs"><button type="button" class="back-btn" data-go="home">← Zurück</button><span id="mode-crumb"></span></nav>
+    <h2 class="pick-title" id="mode-title">2. Wie möchtest du rechnen?</h2>
+    <div class="choice-grid" id="mode-grid"></div>
+  </section>
+
+  <!-- Stufe wählen -->
+  <section id="screen-stufe" class="screen" hidden aria-labelledby="stufe-title">
+    <nav class="crumbs"><button type="button" class="back-btn" data-go="mode">← Zurück</button><span id="stufe-crumb"></span></nav>
+    <h2 class="pick-title" id="stufe-title">3. Welche Stufe?</h2>
+    <div class="choice-grid" id="stufe-grid"></div>
+  </section>
+
+  <!-- Üben -->
+  <section id="screen-play" class="screen" hidden aria-labelledby="play-title">
+    <div class="play-bar">
+      <button type="button" class="back-btn" id="play-back">← Stufen</button>
+      <div class="play-info">
+        <span class="badge" id="play-path"></span>
+        <span class="badge soft" id="play-level"></span>
+      </div>
+      <div class="play-score" id="play-points" aria-live="polite"></div>
+    </div>
+    <div class="dots" id="play-dots" aria-label="Fortschritt in dieser Runde"></div>
+
+    <div class="play-main">
+      <div class="task-card">
+        <p class="task-kicker" id="play-kicker"></p>
+        <h2 class="task-title" id="play-title"></h2>
+        <div id="sach-box" class="sach" hidden></div>
+        <div id="work" class="work"></div>
+        <div id="hint-visual" class="hint-visual" hidden></div>
+        <div id="answer-box" class="answer-box" hidden></div>
+      </div>
+
+      <aside class="side">
+        <div class="coach">
+          <div class="mascot small" id="play-mascot" aria-hidden="true"></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+        </div>
+        <div class="pad" id="pad" aria-label="Zahlenfeld"></div>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="hint-btn">Tipp</button>
+          <button type="button" class="btn primary" id="check-btn">Prüfen</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Rundenende -->
+  <section id="screen-done" class="screen" hidden aria-labelledby="done-title">
+    <div class="done-card">
+      <div class="mascot big" id="done-mascot" aria-hidden="true"></div>
+      <h2 id="done-title"></h2>
+      <div class="done-stars" id="done-stars"></div>
+      <p id="done-text" class="lead"></p>
+      <div class="done-trail" id="done-trail"></div>
+      <div class="done-actions">
+        <button type="button" class="btn primary" id="again-btn">Nächste Runde</button>
+        <button type="button" class="btn ghost" id="to-stufe-btn">Andere Stufe</button>
+        <button type="button" class="btn ghost" id="to-home-btn">Andere Rechenart</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<noscript><p class="noscript">Bitte JavaScript einschalten, damit die Lernwelt funktioniert.</p></noscript>
+<script>
+/* Rechen-Gipfel – kleine Hilfsfunktionen */
+window.RG = window.RG || {};
+(function (RG) {
+  RG.rnd = function (a, b) { return a + Math.floor(Math.random() * (b - a + 1)); };
+  RG.pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+  RG.shuffle = function (arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  };
+  /* Tausendergruppen mit schmalem Leerzeichen: 12 345 */
+  RG.fmt = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
+  RG.len = function (n) { return String(n).length; };
+  RG.digitsOf = function (n) { return String(n).split('').map(Number); };
+  /* Stellenwert-Zerlegung: 285 -> [200, 80, 5] (Nullen fallen weg) */
+  RG.placeParts = function (n) {
+    var s = String(n), out = [];
+    for (var i = 0; i < s.length; i++) {
+      var d = Number(s[i]);
+      if (d) out.push(d * Math.pow(10, s.length - 1 - i));
+    }
+    return out;
+  };
+  /* Stellenwert-Namen von rechts: E, Z, H, T, ZT, HT */
+  RG.PLACE = ['E', 'Z', 'H', 'T', 'ZT', 'HT', 'M'];
+  RG.PLACE_LONG = ['Einer', 'Zehner', 'Hunderter', 'Tausender', 'Zehntausender', 'Hunderttausender', 'Millionen'];
+
+  /* Überschlag: auf die höchste Stelle runden */
+  RG.roundLead = function (n) {
+    var p = Math.pow(10, String(n).length - 1);
+    return Math.round(n / p) * p;
+  };
+
+  /* Speicher (nur in diesem Browser) */
+  var KEY = 'rechengipfel6-v1';
+  RG.store = {
+    load: function () { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } },
+    save: function (d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) { /* ohne Speicher weiter */ } },
+    clear: function () { try { localStorage.removeItem(KEY); } catch (e) { /* egal */ } }
+  };
+
+  /* DOM-Helfer */
+  RG.el = function (tag, attrs, children) {
+    var e = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v === undefined || v === null || v === false) return;
+        if (k === 'text') e.textContent = v;
+        else if (k === 'html') e.innerHTML = v;
+        else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+        else e.setAttribute(k, v === true ? '' : v);
+      });
+    }
+    (children || []).forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    });
+    return e;
+  };
+})(window.RG);
+
+/* ---------- Dezimalzahlen und negative Zahlen ---------- */
+(function (RG) {
+  /* Eine Dezimalzahl ist {i, k}: ganze Zahl i geteilt durch 10^k (k = Stellen nach dem Komma) */
+  RG.D = function (i, k) { return { i: i, k: k || 0 }; };
+  RG.dVal = function (x) { return x.i / Math.pow(10, x.k); };
+  RG.dScale = function (x, k) { return x.i * Math.pow(10, k - x.k); };
+  RG.dNorm = function (x) { var i = x.i, k = x.k; while (k > 0 && i % 10 === 0) { i /= 10; k--; } return { i: i, k: k }; };
+  RG.dIntLen = function (x) { return String(Math.floor(Math.abs(x.i) / Math.pow(10, x.k))).length; };
+  /* Ziffern ohne Komma, mit führender 0 bei 0,xx: 0,84 -> "084" */
+  RG.dDigits = function (x) {
+    var s = String(Math.abs(x.i));
+    while (s.length < x.k + 1) s = '0' + s;
+    return s;
+  };
+  /* Deutsche Schreibweise: 12,05  −3  1 250,5 */
+  RG.dStr = function (x) {
+    var s = RG.dDigits(x), ip = s.slice(0, s.length - x.k), fp = s.slice(s.length - x.k);
+    return (x.i < 0 ? '−' : '') + RG.fmt(ip) + (x.k ? ',' + fp : '');
+  };
+  RG.dSum = function (list) {
+    var K = Math.max.apply(null, list.map(function (x) { return x.k; }));
+    return { i: list.reduce(function (s, x) { return s + RG.dScale(x, K); }, 0), k: K };
+  };
+  RG.dMul = function (a, b) { return { i: a.i * b.i, k: a.k + b.k }; };
+  /* Zufällige Dezimalzahl zwischen lo und hi (ganzzahliger Anteil) mit k Stellen, letzte Stelle nicht 0 */
+  RG.rndDec = function (lo, hi, k) {
+    var p = Math.pow(10, k), i;
+    do { i = RG.rnd(lo * p, hi * p + p - 1); } while (k > 0 && i % 10 === 0);
+    if (i === 0) i = k ? 1 : 1;
+    return { i: i, k: k };
+  };
+  /* Eingabe lesen: "12,5", "−3", "-0,25" -> Zahl oder null */
+  RG.parseNum = function (s) {
+    if (s === null || s === undefined) return null;
+    s = String(s).replace('−', '-').replace(',', '.').replace(/\s| /g, '');
+    if (s === '' || s === '-' || s === '.' || s === '-.') return null;
+    var v = Number(s);
+    return isNaN(v) ? null : v;
+  };
+  RG.same = function (a, b) { return a !== null && b !== null && a !== undefined && Math.abs(a - b) < 1e-9; };
+  /* Stellennamen für Zahlen mit k Nachkommastellen, von rechts gezählt */
+  RG.placeNames = function (k, total) {
+    var dec = ['z', 'h', 't'], out = [];
+    for (var p = 0; p < total; p++) out.push(p < k ? dec[k - 1 - p] : RG.PLACE[p - k]);
+    return out;
+  };
+})(window.RG);
+
+</script>
+<script>
+/* Rechen-Gipfel 6 – Aufgaben erzeugen
+   Welt "dez": Dezimalzahlen, Rechenarten add/sub/mul/div, Verfahren sch (schriftlich) oder km (Kopfrechnen)
+   Welt "rat": rationale Zahlen, Rechenarten add/sub, nur Kopfrechnen, ohne doppelte Vorzeichen
+   Jede Stufe hat 5 Level (Hütten), die schwerer werden. */
+(function (RG) {
+  var rnd = RG.rnd, pick = RG.pick, D = RG.D, rd = RG.rndDec;
+
+  function retry(make, ok) {
+    var x;
+    for (var i = 0; i < 500; i++) { x = make(); if (ok(x)) return x; }
+    return x;
+  }
+  RG.retry = retry;
+  function sum(list) { return RG.dSum(list); }
+  function sub(a, b) { var K = Math.max(a.k, b.k); return { i: RG.dScale(a, K) - RG.dScale(b, K), k: K }; }
+  function carriesD(list) { var K = Math.max.apply(null, list.map(function (x) { return x.k; })); return RG.carries(list.map(function (x) { return RG.dScale(x, K); })); }
+  function borrowsD(a, b) { var K = Math.max(a.k, b.k); return RG.borrows(RG.dScale(a, K), RG.dScale(b, K)); }
+  function lastNonZero(x) { return x.k === 0 || x.i % 10 !== 0; }
+
+  /* ---------- Hilfen aus Klasse 5 (Überträge, Entbündeln) ---------- */
+  RG.carries = function (nums) {
+    var c = 0, cnt = 0, L = Math.max.apply(null, nums.map(RG.len));
+    for (var i = 0; i < L; i++) {
+      var s = c;
+      nums.forEach(function (n) { s += Math.floor(n / Math.pow(10, i)) % 10; });
+      c = Math.floor(s / 10);
+      if (c) cnt++;
+    }
+    return cnt;
+  };
+  RG.borrows = function (a, b) {
+    var A = String(a).split('').reverse().map(Number), B = String(b).split('').reverse().map(Number), c = 0, cnt = 0;
+    for (var i = 0; i < A.length; i++) { var x = A[i] - c, y = B[i] || 0; if (x < y) { cnt++; c = 1; } else c = 0; }
+    return cnt;
+  };
+
+  /* =================== Dezimalzahlen schriftlich =================== */
+  function schAdd(s, L) {
+    var t;
+    if (s === 1) {
+      t = [
+        function () { return retry(function () { return [rd(1, 9, 1), rd(1, 9, 1)]; }, function (x) { return carriesD(x) === 0; }); },
+        function () { return retry(function () { return [rd(1, 99, 1), rd(1, 99, 1)]; }, function (x) { return carriesD(x) >= 1; }); },
+        function () { return retry(function () { return [rd(1, 99, 2), rd(1, 99, 2)]; }, function (x) { return carriesD(x) >= 1; }); },
+        function () { return [rd(10, 999, 2), rd(10, 999, 2)]; },
+        function () { return [rd(1, 99, 2), rd(10, 499, 2), rd(1, 99, 2)]; }
+      ][L - 1]();
+    } else {
+      t = [
+        function () { return [rd(1, 99, 1), rd(1, 99, 2)]; },
+        function () { return RG.shuffle([rd(1, 99, 1), rd(1, 99, 3)]); },
+        function () { return [rd(1, 99, 2), D(rnd(2, 99), 0), rd(1, 99, 1)]; },
+        function () { return [rd(10, 999, 1), rd(1, 99, 3), rd(1, 99, 2)]; },
+        function () { return [rd(100, 999, 2), rd(1, 9, 3), D(rnd(10, 99), 0), rd(10, 99, 1)]; }
+      ][L - 1]();
+    }
+    return { world: 'dez', kind: 'add', terms: t, ans: RG.dNorm(sum(t)) };
+  }
+  function schSub(s, L) {
+    var p;
+    if (s === 1) {
+      p = [
+        function () { return retry(function () { return [rd(5, 9, 1), rd(1, 4, 1)]; }, function (x) { return borrowsD(x[0], x[1]) === 0; }); },
+        function () { return retry(function () { return [rd(10, 99, 1), rd(1, 9, 1)]; }, function (x) { return borrowsD(x[0], x[1]) >= 1; }); },
+        function () { return retry(function () { return [rd(20, 99, 2), rd(10, 19, 2)]; }, function (x) { return borrowsD(x[0], x[1]) >= 1; }); },
+        function () { return retry(function () { return [rd(200, 999, 2), rd(100, 199, 2)]; }, function (x) { return borrowsD(x[0], x[1]) >= 2; }); },
+        function () { return retry(function () { return [rd(10, 99, 3), rd(1, 9, 3)]; }, function (x) { return borrowsD(x[0], x[1]) >= 2; }); }
+      ][L - 1];
+    } else {
+      p = [
+        function () { return [rd(10, 99, 1), rd(1, 9, 2)]; },
+        function () { return [D(rnd(5, 30), 0), rd(1, 4, 2)]; },
+        function () { return [rd(10, 99, 2), rd(1, 9, 3)]; },
+        function () { var a = D(rnd(2, 9) * 1000 + rnd(1, 9), 2); return [a, rd(10, 19, 2)]; },
+        function () { return [D(pick([100, 200, 500, 1000]), 0), rd(10, 99, 2)]; }
+      ][L - 1];
+    }
+    var t = retry(p, function (x) { return RG.dVal(x[0]) > RG.dVal(x[1]); });
+    return { world: 'dez', kind: 'sub', a: t[0], b: t[1], ans: RG.dNorm(sub(t[0], t[1])) };
+  }
+  function schMul(s, L) {
+    var n, f;
+    if (s === 1) {
+      n = [rd(1, 9, 1), rd(10, 99, 1), rd(1, 9, 2), rd(10, 99, 2), rd(1, 9, 3)][L - 1];
+      f = D([rnd(2, 5), rnd(3, 9), rnd(2, 9), rnd(4, 9), rnd(6, 9)][L - 1], 0);
+    } else {
+      var pairs = [
+        function () { return [rd(1, 9, 1), D(rnd(2, 9), 1)]; },
+        function () { return [rd(1, 9, 1), retry(function () { return rd(1, 9, 1); }, function (x) { return x.i >= 11; })]; },
+        function () { return [rd(1, 9, 2), retry(function () { return rd(1, 9, 1); }, function (x) { return x.i >= 11; })]; },
+        function () { return [rd(1, 9, 2), retry(function () { return rd(0, 0, 2); }, function (x) { return x.i >= 11; })]; },
+        function () { return [rd(1, 9, 3), retry(function () { return rd(1, 9, 1); }, function (x) { return x.i >= 11; })]; }
+      ];
+      var pr = pairs[L - 1]();
+      n = pr[0]; f = pr[1];
+    }
+    return { world: 'dez', kind: 'mul', n: n, f: f, ans: RG.dNorm(RG.dMul(n, f)) };
+  }
+  /* Division: q = Ergebnis, d = Divisor (ganz). Dividend = q · d mit gleich vielen Nachkommastellen wie q */
+  function schDiv(s, L) {
+    var q, d, shift = 0;
+    if (s === 1) {
+      var cfg = [[1, 9, 1, 2, 5], [10, 99, 1, 3, 9], [1, 9, 2, 2, 9], [0, 0, 2, 3, 9], [10, 99, 2, 6, 9]][L - 1];
+      var r = retry(function () { var qq = rd(cfg[0], cfg[1], cfg[2]), dd = rnd(cfg[3], cfg[4]); return [qq, dd]; },
+        function (x) { return lastNonZero(D(x[0].i * x[1], x[0].k)) && x[0].i >= 2; });
+      q = r[0]; d = r[1];
+    } else {
+      var c2 = [
+        function () { return [D(rnd(2, 9), 0), rnd(2, 9), 1]; },
+        function () { return [D(rnd(11, 99), 0), rnd(2, 9), 1]; },
+        function () { return [rd(1, 9, 1), rnd(2, 9), 1]; },
+        function () { return [D(rnd(11, 49), 0), rnd(2, 9), 2]; },
+        function () { return [rd(1, 9, 1), rnd(11, 25), 1]; }
+      ][L - 1];
+      var r2 = retry(c2, function (x) { return lastNonZero(D(x[0].i * x[1], x[0].k + x[2])); });
+      q = r2[0]; d = r2[1]; shift = r2[2];
+    }
+    var Dsh = { i: q.i * d, k: q.k };               /* Dividend nach dem Verschieben */
+    var dividend = { i: Dsh.i, k: Dsh.k + shift };  /* Dividend in der Aufgabe */
+    var divisor = { i: d, k: shift };
+    return { world: 'dez', kind: 'div', Dv: dividend, dv: divisor, shift: shift, Dsh: Dsh, d: d, q: q, ans: q };
+  }
+
+  /* =================== Dezimalzahlen Kopfrechnen: Päckchen mit 3 Aufgaben =================== */
+  function row(text, ans, opt) { return { text: text, ans: ans, gap: !!(opt && opt.gap), after: opt && opt.after, pre: !!(opt && opt.pre) }; }
+  var S = RG.dStr;
+  function kmRow(op, s, L) {
+    var a, b, c;
+    if (op === 'add') {
+      if (s === 1) {
+        if (L === 1) { a = D(rnd(1, 4), 1); b = D(rnd(1, 9 - a.i), 1); }
+        else if (L === 2) { a = D(rnd(4, 9), 1); b = D(rnd(11 - a.i, 9), 1); }
+        else if (L === 3) { a = rd(1, 9, 1); b = rd(1, 9, 1); }
+        else if (L === 4) { a = rd(1, 9, 2); b = D(rnd(1, 9), 1); }
+        else { a = retry(function () { return rd(0, 0, 2); }, function (x) { return x.i > 10; }); b = retry(function () { return rd(0, 0, 2); }, function (x) { return x.i > 10; }); }
+        return row(S(a) + ' + ' + S(b) + ' =', RG.dSum([a, b]));
+      }
+      if (L === 1) { a = D(rnd(11, 99), 2); if (a.i % 10 === 0) a.i++; return row(S(a) + ' +', D(100 - a.i, 2), { gap: true, after: '= 1' }); }
+      if (L === 2) { a = rd(1, 8, 1); var to = Math.ceil(RG.dVal(a)); return row(S(a) + ' +', sub(D(to, 0), a), { gap: true, after: '= ' + to }); }
+      if (L === 3) { a = rd(1, 9, 2); b = rd(0, 1, 1); return row(S(a) + ' + ' + S(b) + ' =', RG.dSum([a, b])); }
+      if (L === 4) { a = rd(1, 9, 1); b = rd(0, 0, 2); c = rd(1, 4, 2); return row(S(a) + ' + ' + S(b) + ' + ' + S(c) + ' =', RG.dSum([a, b, c])); }
+      a = rd(0, 0, 3); b = rd(0, 0, 3); return row(S(a) + ' + ' + S(b) + ' =', RG.dSum([a, b]));
+    }
+    if (op === 'sub') {
+      if (s === 1) {
+        if (L === 1) { a = D(rnd(5, 9), 1); b = D(rnd(1, a.i - 1), 1); }
+        else if (L === 2) { a = D(rnd(11, 18), 1); b = D(rnd(a.i % 10 + 1, 9), 1); }
+        else if (L === 3) { a = rd(2, 9, 1); b = retry(function () { return rd(1, 4, 1); }, function (x) { return x.i < a.i; }); }
+        else if (L === 4) { a = rd(1, 9, 2); b = D(rnd(1, 9), 1); if (RG.dVal(b) >= RG.dVal(a)) a = RG.dSum([a, D(1, 0)]); }
+        else { a = D(1, 0); b = retry(function () { return rd(0, 0, 2); }, function (x) { return x.i > 10; }); }
+        return row(S(a) + ' − ' + S(b) + ' =', RG.dNorm(sub(a, b)));
+      }
+      if (L === 1) { a = D(rnd(3, 9), 0); b = rd(1, a.i - 1, 1); }
+      else if (L === 2) { a = rd(2, 9, 2); b = retry(function () { return rd(1, 3, 1); }, function (x) { return RG.dVal(x) < RG.dVal(a); }); }
+      else if (L === 3) { a = D(pick([10, 20, 50]), 0); b = rd(1, 9, 2); }
+      else if (L === 4) { b = rd(1, 4, 1); var r = rd(1, 5, 1); return row('', RG.dSum([r, b]), { gap: true, pre: true, after: '− ' + S(b) + ' = ' + S(r) }); }
+      else { a = D(1, 0); b = rd(0, 0, 3); }
+      return row(S(a) + ' − ' + S(b) + ' =', RG.dNorm(sub(a, b)));
+    }
+    if (op === 'mul') {
+      if (s === 1) {
+        if (L === 1) { a = rd(1, 99, rnd(1, 2)); b = D(pick([10, 100]), 0); }
+        else if (L === 2) { a = pick([rd(0, 9, 2), rd(0, 9, 3)]); b = D(pick([10, 100, 1000]), 0); }
+        else if (L === 3) { a = rd(0, 3, 1); b = D(rnd(2, 4), 0); }
+        else if (L === 4) { a = pick([D(25, 2), D(15, 1), D(75, 2), rd(1, 2, 1)]); b = D(rnd(3, 8), 0); }
+        else { a = pick([D(rnd(1, 9), 2), rd(1, 9, 1)]); b = D(rnd(5, 9), 0); }
+      } else {
+        if (L === 1) { a = D(rnd(1, 9), 1); b = D(rnd(1, 9), 1); }
+        else if (L === 2) { a = rd(1, 3, 1); b = D(rnd(2, 5), 1); }
+        else if (L === 3) { a = pick([D(rnd(11, 99), 0), rd(1, 99, 1)]); b = D(1, pick([1, 2])); }
+        else if (L === 4) { a = pick([D(5, 1), D(25, 2), D(15, 1)]); b = D(rnd(2, 8), 1); }
+        else { a = rd(1, 4, 1); b = D(rnd(2, 9), 2); }
+      }
+      return row(S(a) + ' · ' + S(b) + ' =', RG.dNorm(RG.dMul(a, b)));
+    }
+    /* Division: a = Ergebnis · b */
+    var res, dvs;
+    if (s === 1) {
+      if (L === 1) { a = rd(1, 99, 1); dvs = D(pick([10, 100]), 0); res = { i: a.i, k: a.k + (dvs.i === 10 ? 1 : 2) }; }
+      else if (L === 2) { a = pick([D(rnd(1, 99), 0), rd(1, 99, 1)]); dvs = D(pick([100, 1000]), 0); res = { i: a.i, k: a.k + (dvs.i === 100 ? 2 : 3) }; }
+      else { res = L === 3 ? D(rnd(1, 4), 1) : (L === 4 ? D(rnd(1, 9), pick([1, 2])) : rd(0, 1, 1)); dvs = D(L === 3 ? rnd(2, 3) : rnd(3, 9), 0); a = RG.dMul(res, dvs); }
+      return row(S(RG.dNorm(a)) + ' : ' + S(dvs) + ' =', RG.dNorm(res));
+    }
+    if (L === 1) { a = rd(1, 9, 1); dvs = D(1, 1); res = D(a.i, 0); }
+    else if (L === 2) { res = D(rnd(2, 9), 0); dvs = D(rnd(2, 9), 1); a = RG.dMul(res, dvs); }
+    else if (L === 3) { res = D(rnd(2, 9), 1); dvs = D(rnd(2, 9), 1); a = RG.dMul(res, dvs); }
+    else if (L === 4) { res = D(rnd(2, 9), 0); dvs = D(rnd(11, 15), 1); a = RG.dMul(res, dvs); }
+    else { res = D(rnd(2, 9), 0); dvs = D(rnd(2, 9), 2); a = RG.dMul(res, dvs); }
+    return row(S(RG.dNorm(a)) + ' : ' + S(dvs) + ' =', RG.dNorm(res));
+  }
+
+  /* =================== Rationale Zahlen: nur −a + b, a − b, −a − b (keine doppelten Vorzeichen) =================== */
+  function ratRow(op, s, L) {
+    var lim = [10, 20, 50, 100, 100][L - 1], terms, ops;
+    function pos(lo, hi, k) { return k ? rd(lo, hi, k) : D(rnd(Math.max(1, lo), hi), 0); }
+    var k = 0, three = false;
+    if (s === 2) {
+      if (L === 1) { k = 1; lim = 10; }
+      else if (L === 2) { three = true; lim = 20; }
+      else if (L === 3) { lim = 1000; }
+      else if (L === 4) { k = 2; lim = 10; }
+      else { three = true; k = 1; lim = 20; }
+    }
+    if (op === 'add') {
+      var a = pos(1, lim, k), b = pos(1, lim, k);
+      if (s === 1 && L === 5 && Math.random() < 0.3) b = { i: a.i, k: a.k };
+      terms = [{ i: -a.i, k: a.k }, b]; ops = ['+'];
+      if (three) { terms.push(pos(1, lim, k)); ops.push('+'); }
+    } else {
+      var x = pos(1, lim, k), y = pos(1, lim, k);
+      if (Math.random() < 0.5 || (s === 1 && L === 1)) {
+        /* a − b mit b > a */
+        if (RG.dVal(y) <= RG.dVal(x)) { var t = x; x = y; y = t; if (x.i === y.i) y = RG.dSum([y, D(1, 0)]); }
+        terms = [x, y];
+      } else {
+        terms = [{ i: -x.i, k: x.k }, y];
+      }
+      if (s === 1 && L === 2) terms = [{ i: -Math.abs(x.i), k: x.k }, y];
+      ops = ['−'];
+      if (three) { terms.push(pos(1, lim, k)); ops.push('−'); }
+    }
+    var acc = terms[0];
+    for (var j = 1; j < terms.length; j++) acc = ops[j - 1] === '+' ? RG.dSum([acc, terms[j]]) : sub(acc, terms[j]);
+    var text = S(terms[0]);
+    for (j = 1; j < terms.length; j++) text += ' ' + ops[j - 1] + ' ' + S(terms[j]);
+    return { text: text + ' =', ans: RG.dNorm(acc), terms: terms, ops: ops };
+  }
+
+  RG.generate = function (world, op, mode, s, L) {
+    L = Math.max(1, Math.min(5, L));
+    if (world === 'rat') {
+      var rr = [ratRow(op, s, L), ratRow(op, s, L), ratRow(op, s, L)];
+      return { world: 'rat', kind: 'rat', op: op, rows: rr };
+    }
+    if (mode === 'km') {
+      var rows = [], seen = {};
+      while (rows.length < 3) {
+        var r = kmRow(op, s, L), key = r.text + (r.after || '');
+        if (seen[key] && rows.length < 3 && Object.keys(seen).length < 20) { seen[key] = 1; continue; }
+        seen[key] = 1; rows.push(r);
+      }
+      return { world: 'dez', kind: 'km', op: op, rows: rows };
+    }
+    if (op === 'add') return schAdd(s, L);
+    if (op === 'sub') return schSub(s, L);
+    if (op === 'mul') return schMul(s, L);
+    return schDiv(s, L);
+  };
+
+  /* =================== Sachaufgaben =================== */
+  function maxK(list) { return Math.max.apply(null, list.map(function (x) { return x.k; })); }
+  var SACH = {
+    add: [
+      { ok: function (t) { return t.terms.length === 2 && maxK(t.terms) <= 2 && RG.dVal(t.ans) < 200; }, text: function (t) { return 'Lea kauft im Schreibwarenladen ein Malset für ' + S(t.terms[0]) + ' € und einen Füller für ' + S(t.terms[1]) + ' €. Wie viel muss sie bezahlen?'; }, ans: function (t) { return 'Lea muss ' + S(t.ans) + ' € bezahlen.'; } },
+      { ok: function (t) { return t.terms.length === 2 && RG.dVal(t.ans) < 100; }, text: function (t) { return 'Paul fährt mit dem Rad am Samstag ' + S(t.terms[0]) + ' km und am Sonntag ' + S(t.terms[1]) + ' km. Wie viele Kilometer sind das zusammen?'; }, ans: function (t) { return 'Paul fährt zusammen ' + S(t.ans) + ' km.'; } },
+      { ok: function (t) { return t.terms.length > 2; }, text: function (t) { return 'Auf dem Wochenmarkt wiegt die Verkäuferin drei Sorten Obst ab: ' + t.terms.map(S).join(' kg, ') + ' kg. Wie viel Kilogramm sind das zusammen?'; }, ans: function (t) { return 'Zusammen sind es ' + S(t.ans) + ' kg.'; } },
+      { ok: function () { return true; }, text: function (t) { return 'Ein Wanderweg hat mehrere Abschnitte: ' + t.terms.map(S).join(' km, ') + ' km. Wie lang ist der ganze Weg?'; }, ans: function (t) { return 'Der Weg ist ' + S(t.ans) + ' km lang.'; } }
+    ],
+    sub: [
+      { ok: function (t) { return RG.dVal(t.a) <= 50; }, text: function (t) { return 'Ein Brett ist ' + S(t.a) + ' m lang. Der Hausmeister sägt ein Stück von ' + S(t.b) + ' m ab. Wie lang ist der Rest?'; }, ans: function (t) { return 'Der Rest ist ' + S(t.ans) + ' m lang.'; } },
+      { ok: function (t) { return Math.max(t.a.k, t.b.k) <= 2; }, text: function (t) { return 'Frau Huber hat ' + S(t.a) + ' € im Geldbeutel. Beim Bäcker bezahlt sie ' + S(t.b) + ' €. Wie viel Geld bleibt ihr?'; }, ans: function (t) { return 'Ihr bleiben ' + S(t.ans) + ' €.'; } },
+      { ok: function () { return true; }, text: function (t) { return 'In einem Fass sind ' + S(t.a) + ' l Apfelsaft. Beim Schulfest werden ' + S(t.b) + ' l ausgeschenkt. Wie viel Saft ist noch im Fass?'; }, ans: function (t) { return 'Im Fass sind noch ' + S(t.ans) + ' l Saft.'; } }
+    ],
+    mul: [
+      { ok: function (t) { return t.f.k === 0 && t.n.k <= 2; }, text: function (t) { return 'Ein Liter Milch kostet ' + S(t.n) + ' €. Frau Huber kauft ' + S(t.f) + ' Liter. Wie viel muss sie bezahlen?'; }, ans: function (t) { return 'Sie muss ' + S(t.ans) + ' € bezahlen.'; } },
+      { ok: function (t) { return t.f.k === 0; }, text: function (t) { return 'Für den Schulbasar braucht die Klasse ' + S(t.f) + ' Stoffbänder. Jedes Band ist ' + S(t.n) + ' m lang. Wie viele Meter Band sind das?'; }, ans: function (t) { return 'Das sind ' + S(t.ans) + ' m Band.'; } },
+      { ok: function (t) { return t.f.k > 0 && t.n.k <= 2; }, text: function (t) { return 'Ein Kilogramm Äpfel kostet ' + S(t.n) + ' €. Lea kauft ' + S(t.f) + ' kg. Wie viel muss sie bezahlen?'; }, ans: function (t) { return 'Lea muss ' + S(t.ans) + ' € bezahlen.'; } },
+      { ok: function (t) { return t.f.k > 0; }, text: function (t) { return 'Ein Beet ist ' + S(t.n) + ' m lang und ' + S(t.f) + ' m breit. Wie groß ist seine Fläche?'; }, ans: function (t) { return 'Das Beet ist ' + S(t.ans) + ' m² groß.'; } }
+    ],
+    div: [
+      { ok: function (t) { return t.shift === 0 && t.Dv.k <= 2; }, text: function (t) { return t.d + ' Freunde teilen sich eine Rechnung von ' + S(t.Dv) + ' € gerecht. Wie viel zahlt jeder?'; }, ans: function (t) { return 'Jeder zahlt ' + S(t.ans) + ' €.'; } },
+      { ok: function (t) { return t.shift === 0; }, text: function (t) { return 'Ein Seil ist ' + S(t.Dv) + ' m lang. Es wird in ' + t.d + ' gleich lange Stücke geschnitten. Wie lang ist ein Stück?'; }, ans: function (t) { return 'Ein Stück ist ' + S(t.ans) + ' m lang.'; } },
+      { ok: function (t) { return t.shift > 0 && t.q.k === 0; }, text: function (t) { return 'Ein Geschenkband ist ' + S(t.Dv) + ' m lang. Es wird in Stücke zu je ' + S(t.dv) + ' m geschnitten. Wie viele Stücke entstehen?'; }, ans: function (t) { return 'Es entstehen ' + S(t.ans) + ' Stücke.'; } },
+      { ok: function (t) { return t.shift > 0 && t.q.k === 0; }, text: function (t) { return 'Eine Flasche fasst ' + S(t.dv) + ' l. Wie viele Flaschen kann man mit ' + S(t.Dv) + ' l Saft füllen?'; }, ans: function (t) { return 'Man kann ' + S(t.ans) + ' Flaschen füllen.'; } }
+    ],
+    rat: {
+      add: [
+        { ok: function (r) { return r.terms.length === 2 && r.terms[0].k === 0 && Math.abs(r.terms[0].i) <= 30; }, text: function (r) { return 'Am Morgen zeigt das Thermometer ' + S(r.terms[0]) + ' °C. Bis zum Mittag wird es ' + S(r.terms[1]) + ' Grad wärmer. Wie warm ist es mittags?'; }, ans: function (r) { return 'Mittags sind es ' + S(r.ans) + ' °C.'; } },
+        { ok: function (r) { return r.terms.length === 2; }, text: function (r) { return 'Tims Konto steht bei ' + S(r.terms[0]) + ' €. Er zahlt ' + S(r.terms[1]) + ' € ein. Wie steht sein Konto jetzt?'; }, ans: function (r) { return 'Sein Konto steht bei ' + S(r.ans) + ' €.'; } }
+      ],
+      sub: [
+        { ok: function (r) { return r.terms.length === 2 && r.terms[0].k === 0 && Math.abs(r.terms[0].i) <= 30; }, text: function (r) { return 'Am Abend sind es ' + S(r.terms[0]) + ' °C. In der Nacht wird es ' + S(r.terms[1]) + ' Grad kälter. Wie kalt ist es in der Nacht?'; }, ans: function (r) { return 'In der Nacht sind es ' + S(r.ans) + ' °C.'; } },
+        { ok: function (r) { return r.terms.length === 2; }, text: function (r) { return 'Ein Konto steht bei ' + S(r.terms[0]) + ' €. Es werden ' + S(r.terms[1]) + ' € abgebucht. Wie steht das Konto jetzt?'; }, ans: function (r) { return 'Das Konto steht bei ' + S(r.ans) + ' €.'; } }
+      ]
+    }
+  };
+  function calc(A, sym, B) { return S(A) + ' ' + sym + ' ' + S(B); }
+  var SYM = { add: '+', sub: '−', mul: '·', div: ':' };
+
+  RG.makeSach = function (task) {
+    var tpl, fits, options;
+    if (task.world === 'rat') {
+      var r = task.rows[0];
+      fits = SACH.rat[task.op].filter(function (x) { return x.ok(r); });
+      if (!fits.length) return null;
+      tpl = pick(fits);
+      var a = r.terms[0], b = r.terms[1], absA = { i: Math.abs(a.i), k: a.k };
+      var neg = { i: -absA.i, k: a.k };
+      var cands = [S(a) + ' ' + r.ops[0] + ' ' + S(b), S(a) + ' ' + (r.ops[0] === '+' ? '−' : '+') + ' ' + S(b), S(a.i < 0 ? absA : neg) + ' ' + r.ops[0] + ' ' + S(b)];
+      options = [{ label: cands[0], correct: true }, { label: cands[1], correct: false }, { label: cands[2], correct: false }];
+      return { text: tpl.text(r), answer: tpl.ans(r), options: RG.shuffle(options) };
+    }
+    fits = SACH[task.kind].filter(function (x) { return x.ok(task); });
+    if (!fits.length) return null;
+    tpl = pick(fits);
+    var A, B;
+    if (task.kind === 'add') { A = task.terms[0]; B = task.terms[1]; }
+    else if (task.kind === 'sub') { A = task.a; B = task.b; }
+    else if (task.kind === 'mul') { A = task.n; B = task.f; }
+    else { A = task.Dv; B = task.dv; }
+    if (task.kind === 'add' && task.terms.length > 2) {
+      options = [{ label: task.terms.map(S).join(' + '), correct: true }, { label: calc(task.terms[0], '+', task.terms[1]), correct: false }, { label: task.terms.map(S).join(' − '), correct: false }];
+    } else {
+      options = [{ label: calc(A, SYM[task.kind], B), correct: true }];
+      RG.shuffle(['add', 'sub', 'mul', 'div'].filter(function (o) { return o !== task.kind; })).slice(0, 2)
+        .forEach(function (o) { options.push({ label: calc(A, SYM[o], B), correct: false }); });
+    }
+    return { text: tpl.text(task), answer: tpl.ans(task), options: RG.shuffle(options) };
+  };
+})(window.RG);
+
+</script>
+<script>
+/* Rechen-Gipfel 6 – Aufbau und Prüfung der Übungen (ohne Bildschirm-Code, damit es testbar bleibt) */
+(function (RG) {
+  var F = RG.fmt, len = RG.len, S = RG.dStr, P = RG.PLACE;
+
+  function range(a, b) { var r = []; for (var i = a; i <= b; i++) r.push(i); return r; }
+  /* Ziffernfolge rechtsbündig auf Spalten legen -> {spalte: ziffer} */
+  function alignRight(value, cols) {
+    var s = String(value), out = {};
+    for (var i = 0; i < s.length && i < cols.length; i++) out[cols[cols.length - 1 - i]] = s[s.length - 1 - i];
+    return out;
+  }
+  RG.alignRight = alignRight;
+
+  RG.title = function (t) {
+    if (t.kind === 'add') return t.terms.map(S).join(' + ');
+    if (t.kind === 'sub') return S(t.a) + ' − ' + S(t.b);
+    if (t.kind === 'mul') return S(t.n) + ' · ' + S(t.f);
+    if (t.kind === 'div') return S(t.Dv) + ' : ' + S(t.dv);
+    return '';
+  };
+
+  /* ---------- Hilfen ---------- */
+  function mulSteps(n, f) {
+    var ds = String(n).split('').reverse().map(Number), c = 0, out = [];
+    ds.forEach(function (x, i) {
+      var pr = f * x, tot = pr + c, last = i === ds.length - 1;
+      var s = f + ' mal ' + x + ' ist ' + pr + (c ? ', plus ' + c + ' gemerkt ist ' + tot : '');
+      if (last) s += ', ' + tot + ' an';
+      else s += ', ' + (tot % 10) + ' an' + (tot >= 10 ? ', ' + Math.floor(tot / 10) + ' gemerkt' : '');
+      out.push(s);
+      c = Math.floor(tot / 10);
+    });
+    return out;
+  }
+  function mulCarries(n, f) {
+    var ds = String(n).split('').reverse().map(Number), c = 0, res = {};
+    ds.forEach(function (x, i) { var tot = f * x + c; c = Math.floor(tot / 10); if (c && i < ds.length - 1) res[i + 1] = c; });
+    return res;
+  }
+  function addCarries(nums) {
+    var L = Math.max.apply(null, nums.map(len)), c = 0, res = {};
+    for (var i = 0; i < L; i++) {
+      var s = c;
+      nums.forEach(function (n) { s += Math.floor(n / Math.pow(10, i)) % 10; });
+      c = Math.floor(s / 10);
+      if (c && i < L - 1) res[i + 1] = c;
+    }
+    return res;
+  }
+  function roundLead(n) { var p = Math.pow(10, String(n).length - 1); return Math.round(n / p) * p; }
+
+  /* Bayerisches Verfahren: Abziehen mit Entbündeln. names = Stellennamen von rechts */
+  RG.subBavaria = function (a, b, names) {
+    names = names || P;
+    var A = String(a).split('').reverse().map(Number), B = String(b).split('').reverse().map(Number);
+    var avail = A.slice(), taken = {}, chain = {}, steps = [];
+    for (var i = 0; i < A.length; i++) {
+      var y = B[i] || 0, N = names[i];
+      if (i >= B.length) {
+        if (avail[i] > 0) steps.push(taken[i] && !chain[i] ? A[i] + ' ' + N + ' − | = ' + avail[i] + ' ' + N + ', übernehmen' : avail[i] + ' ' + N + ' übernehmen');
+        continue;
+      }
+      var label = chain[i] ? '9 ' + N + ' (nach dem Entbündeln)' : (taken[i] ? A[i] + ' ' + N + ' − |' : avail[i] + ' ' + N);
+      if (avail[i] < y) {
+        var j = i + 1;
+        while (avail[j] === 0) j++;
+        avail[j] -= 1; taken[j] = true;
+        for (var k = j - 1; k > i; k--) { avail[k] = 9; chain[k] = true; taken[k] = true; }
+        avail[i] += 10;
+        var txt = label + ' − ' + y + ' ' + N + ' geht nicht. Ich entbündele 1 ' + names[j] + ' (|)';
+        if (j > i + 1) txt += ' und tausche weiter, bis ich 10 ' + N + ' mehr habe';
+        txt += '. ' + avail[i] + ' ' + N + ' − ' + y + ' ' + N + ' = ' + (avail[i] - y) + ' ' + N;
+        steps.push(txt);
+      } else {
+        steps.push(label + ' − ' + y + ' ' + N + ' = ' + (avail[i] - y) + ' ' + N);
+      }
+    }
+    return { steps: steps, marks: Object.keys(taken).map(Number) };
+  };
+
+  /* Spalten für Dezimalzahlen: Spalte 0 = Rechenzeichen, dann Ganze, Komma, Nachkommastellen */
+  function layout(intW, K) {
+    var intCols = range(1, intW), comma = K ? intW + 1 : null, decCols = K ? range(intW + 2, intW + 1 + K) : [];
+    return { intCols: intCols, comma: comma, decCols: decCols, digitCols: intCols.concat(decCols), C: intW + (K ? 1 + K : 0) };
+  }
+  function placeNumber(x, L, fill) {
+    var ds = RG.dDigits(x), ip = ds.slice(0, ds.length - x.k), fp = ds.slice(ds.length - x.k);
+    var cells = alignRight(ip, L.intCols), cls = {};
+    if (L.comma && (x.k || fill)) cells[L.comma] = ',';
+    for (var i = 0; i < L.decCols.length; i++) {
+      if (i < fp.length) cells[L.decCols[i]] = fp[i];
+      else if (fill) { cells[L.decCols[i]] = '0'; cls[L.decCols[i]] = 'fill'; }
+    }
+    return { cells: cells, cls: cls };
+  }
+  /* skalierte ganze Zahl mit K Stellen als Ziffernfolge inkl. führender 0 */
+  function scaledDigits(v, K) { var s = String(v); while (s.length < K + 1) s = '0' + s; return s; }
+
+  /* =================== Schriftlich =================== */
+  RG.buildWork = function (t, stufe) {
+    if (t.kind === 'add') return gridAdd(t);
+    if (t.kind === 'sub') return gridSub(t);
+    if (t.kind === 'mul') return mulCombo(t);
+    return null;
+  };
+
+  function gridAdd(t) {
+    var K = Math.max.apply(null, t.terms.map(function (x) { return x.k; }));
+    var scaled = t.terms.map(function (x) { return RG.dScale(x, K); });
+    var total = scaled.reduce(function (a, b) { return a + b; }, 0);
+    var intW = Math.max(RG.dIntLen({ i: total, k: K }), Math.max.apply(null, t.terms.map(RG.dIntLen)));
+    var L = layout(intW, K), rows = [];
+    t.terms.forEach(function (x, j) {
+      var pl = placeNumber(x, L, false);
+      rows.push({ type: 'static', cells: pl.cells, cls: pl.cls, sign: j === t.terms.length - 1 ? '+' : '' });
+    });
+    rows.push({ type: 'helper', key: 'c', cols: L.digitCols, mode: 'digit', small: true, label: 'Merkzahl' });
+    var fixed = {}; if (L.comma) fixed[L.comma] = ',';
+    rows.push({ type: 'input', key: 'res', cols: L.digitCols, fixed: fixed, ruleTop: true, label: 'Summe' });
+    var dc = L.digitCols, solC = {}, carry = addCarries(scaled);
+    Object.keys(carry).forEach(function (p) { solC[dc[dc.length - 1 - Number(p)]] = String(carry[p]); });
+    var names = RG.placeNames(K, dc.length), steps = [], c = 0, tl = scaledDigits(total, K).length;
+    for (var i = 0; i < tl; i++) {
+      /* nur Ziffern, die bei der Zahl wirklich dastehen */
+      var ds = t.terms.filter(function (x) { return i >= K - x.k && i < K - x.k + RG.dDigits(x).length; })
+        .map(function (x) { return Math.floor(RG.dScale(x, K) / Math.pow(10, i)) % 10; });
+      var s = ds.reduce(function (a, b) { return a + b; }, 0) + c, last = i === tl - 1;
+      var txt = names[i] + ': ' + (ds.length ? ds.join(' + ') : '0') + (c ? ' + ' + c + ' gemerkt' : '') + ' = ' + s;
+      txt += last || s < 10 ? ', ' + (last ? s : s % 10) + ' an' : ', ' + (s % 10) + ' an, ' + Math.floor(s / 10) + ' gemerkt';
+      steps.push(txt);
+      c = Math.floor(s / 10);
+    }
+    if (K) steps.push('Komma unter Komma: Im Ergebnis steht das Komma an derselben Stelle.');
+    return {
+      type: 'grid', C: L.C, rows: rows,
+      check: function (read) {
+        var r = read('res'), ok = r === total;
+        return { ok: ok, rows: { res: ok }, msg: ok ? '' : 'Die Summe stimmt noch nicht. Fang ganz rechts an. Leere Stellen nach dem Komma kannst du dir als 0 denken.' };
+      },
+      solution: { res: alignRight(scaledDigits(total, K), dc), c: solC },
+      hint: 'Komma unter Komma! Beginne ganz rechts: ' + steps[0] + '.',
+      steps: steps
+    };
+  }
+
+  function gridSub(t) {
+    var K = Math.max(t.a.k, t.b.k), A = RG.dScale(t.a, K), B = RG.dScale(t.b, K);
+    var intW = RG.dIntLen(t.a), L = layout(intW, K), dc = L.digitCols;
+    var pa = placeNumber(t.a, L, true), pb = placeNumber(t.b, L, true);
+    var names = RG.placeNames(K, dc.length), bav = RG.subBavaria(A, B, names), marks = {};
+    bav.marks.forEach(function (p) { marks[dc[dc.length - 1 - p]] = '|'; });
+    var fixed = {}; if (L.comma) fixed[L.comma] = ',';
+    var rows = [
+      { type: 'static', cells: pa.cells, cls: pa.cls },
+      { type: 'helper', key: 'm', cols: dc, mode: 'mark', small: true, label: 'Entbündel-Strich' },
+      { type: 'static', cells: pb.cells, cls: pb.cls, sign: '−' },
+      { type: 'input', key: 'res', cols: dc, fixed: fixed, ruleTop: true, label: 'Differenz' }
+    ];
+    var filled = t.a.k < K || t.b.k < K;
+    return {
+      type: 'grid', C: L.C, rows: rows,
+      check: function (read) {
+        var r = read('res'), ok = r === A - B;
+        return { ok: ok, rows: { res: ok }, msg: ok ? '' : 'Die Differenz stimmt noch nicht. Wenn oben zu wenig ist: entbündeln und einen Strich machen.' };
+      },
+      solution: { res: alignRight(scaledDigits(A - B, K), dc), m: marks },
+      hint: (filled ? 'Die farbigen Nullen sind ergänzt, damit beide Zahlen gleich viele Stellen nach dem Komma haben. ' : '') + 'Beginne ganz rechts: ' + bav.steps[0] + '.',
+      steps: (filled ? ['Nullen ergänzen, bis beide Zahlen gleich viele Stellen nach dem Komma haben.'] : []).concat(bav.steps)
+    };
+  }
+
+  /* Multiplikation: erst ohne Komma rechnen, dann Stellen abstreichen */
+  function gridMulInt(n, f) {
+    var Ln = len(n), answer = n * f;
+    if (f < 10) {
+      var W = Ln + 2, cells = alignRight(n, range(1, Ln)); cells[Ln + 1] = '·'; cells[Ln + 2] = String(f);
+      var resCols = range(W - Ln, W), carry = mulCarries(n, f), solC = {};
+      Object.keys(carry).forEach(function (p) { solC[W - Number(p)] = String(carry[p]); });
+      return {
+        type: 'grid', C: W,
+        rows: [{ type: 'static', cells: cells }, { type: 'helper', key: 'c', cols: range(1, W), mode: 'digit', small: true, ruleTop: true, label: 'Merkzahl' }, { type: 'input', key: 'res', cols: resCols, label: 'Ergebnis ohne Komma' }],
+        check: function (read) { var r = read('res'), ok = r === answer; return { ok: ok, rows: { res: ok }, msg: ok ? '' : 'Das Ergebnis ohne Komma stimmt noch nicht.' }; },
+        solution: { res: alignRight(answer, resCols), c: solC },
+        steps: ['Ohne Komma: ' + F(n) + ' · ' + f].concat(mulSteps(n, f))
+      };
+    }
+    var W2 = Ln + 3, T = Math.floor(f / 10), E = f % 10, cells2 = alignRight(n, range(1, Ln));
+    cells2[Ln + 1] = '·'; cells2[Ln + 2] = String(T); cells2[Ln + 3] = String(E);
+    var wide = range(W2 - Ln - 1, W2), narrow = range(W2 - Ln, W2), A = n * T * 10, B = n * E;
+    var carry2 = addCarries([A, B]), solC2 = {};
+    Object.keys(carry2).forEach(function (p) { solC2[W2 - Number(p)] = String(carry2[p]); });
+    return {
+      type: 'grid', C: W2,
+      rows: [
+        { type: 'static', cells: cells2 },
+        { type: 'input', key: 'r1', cols: wide, ruleTop: true, label: '1. Zwischenergebnis' },
+        { type: 'input', key: 'r2', cols: narrow, label: '2. Zwischenergebnis' },
+        { type: 'helper', key: 'c', cols: range(1, W2), mode: 'digit', small: true, sign: '+', label: 'Merkzahl' },
+        { type: 'input', key: 'res', cols: wide, ruleTop: true, label: 'Ergebnis ohne Komma' }
+      ],
+      check: function (read) {
+        var v1 = read('r1'), v2 = read('r2'), r = read('res');
+        var a = v1 === null ? -1 : v1, b = v2 === null ? 0 : v2;
+        var ok1 = a === A || a === B, ok2 = a === A ? b === B : (a === B ? b === A : (b === A || b === B));
+        if (v1 === null && v2 === null) { ok1 = ok2 = false; }
+        var ok3 = r === answer;
+        var msg = !(ok1 && ok2) && ok3 ? 'Das Ergebnis stimmt. Schreib auch die Zwischenergebnisse richtig hin.' : (ok1 && ok2 && !ok3 ? 'Die Zwischenergebnisse stimmen. Rechne die Addition nochmal nach.' : 'Die rot markierten Zeilen stimmen noch nicht. Erst mit der ' + T + '0, dann mit der ' + E + '.');
+        return { ok: ok1 && ok2 && ok3, rows: { r1: ok1, r2: ok2, res: ok3 }, msg: msg };
+      },
+      solution: { r1: alignRight(A, wide), r2: alignRight(B, narrow), res: alignRight(answer, wide), c: solC2 },
+      steps: ['Ohne Komma: ' + F(n) + ' · ' + f, 'Erst mit der ' + T + '0: 0 nach unten, dann ' + T + ' mal …'].concat(mulSteps(n, T).map(function (s) { return '   ' + s; }))
+        .concat(['Dann mit der ' + E + ':']).concat(E ? mulSteps(n, E).map(function (s) { return '   ' + s; }) : ['   0 mal ' + F(n) + ' ist 0'])
+        .concat(['Zwischenergebnisse addieren: ' + F(A) + ' + ' + F(B) + ' = ' + F(answer)])
+    };
+  }
+
+  function mulCombo(t) {
+    var nI = Math.abs(t.n.i), fI = Math.abs(t.f.i), grid = gridMulInt(nI, fI), kk = t.n.k + t.f.k;
+    var komma = {
+      type: 'steps',
+      rows: [[{ t: 'x', v: 'Stellen nach dem Komma: ' + t.n.k + ' + ' + t.f.k + ' =' }, { t: 's', id: 'k' }],
+        [{ t: 'x', v: S(t.n) + ' · ' + S(t.f) + ' =' }, { t: 's', id: 'res' }]],
+      slots: [{ id: 'k', w: 1 }, { id: 'res', w: S(t.ans).length, dec: true, final: true }],
+      solution: { k: kk, res: S(RG.D(t.n.i * t.f.i, kk)) },
+      check: function (read) {
+        var bad = [];
+        if (read('k') !== kk) bad.push('k');
+        if (!RG.same(read('res'), RG.dVal(t.ans))) bad.push('res');
+        return { ok: !bad.length, bad: bad, msg: bad.length ? (bad.indexOf('k') >= 0 ? 'Zähle die Stellen nach dem Komma bei beiden Zahlen zusammen.' : 'Streiche im Ergebnis ' + kk + ' Stellen von rechts ab und setze dort das Komma.') : '' };
+      }
+    };
+    return {
+      type: 'combo',
+      parts: [{ label: '1. Rechne ohne Komma: ' + F(nI) + ' · ' + F(fI), spec: grid }, { label: '2. Setze das Komma', spec: komma }],
+      hint: 'Rechne erst ' + F(nI) + ' · ' + F(fI) + ' wie bei natürlichen Zahlen. Dann zählst du die Stellen nach dem Komma: ' + t.n.k + ' + ' + t.f.k + ' = ' + kk + '. Überschlag: ' + S(RG.D(Math.round(RG.dVal(t.n)), 0)) + ' · ' + S(t.f.k ? RG.D(Math.round(RG.dVal(t.f) * 10), 1) : t.f) + '.',
+      steps: grid.steps.concat([S(t.n) + ' hat ' + t.n.k + ', ' + S(t.f) + ' hat ' + t.f.k + ' Stellen nach dem Komma: zusammen ' + kk + '.', 'Im Ergebnis ' + kk + ' Stellen von rechts abstreichen: ' + S(RG.D(t.n.i * t.f.i, kk)) + (kk && RG.D(t.n.i * t.f.i, kk).i % 10 === 0 ? ' = ' + S(t.ans) : '')])
+    };
+  }
+
+  /* =================== Division: Schritte über einer Ziffernfolge =================== */
+  RG.divSteps = function (digits, d) {
+    var ds = String(digits).split('').map(Number), i = 0, cur = ds[0], out = [];
+    while (cur < d && i < ds.length - 1) { i++; cur = cur * 10 + ds[i]; }
+    for (;;) {
+      var q = Math.floor(cur / d), prod = q * d, rem = cur - prod;
+      var step = { cur: cur, end: i, q: q, prod: prod, rem: rem };
+      out.push(step);
+      if (i < ds.length - 1) { i++; step.down = ds[i]; cur = rem * 10 + ds[i]; step.next = cur; }
+      else break;
+    }
+    return out;
+  };
+
+  /* =================== Kopfrechnen und rationale Zahlen: Päckchen =================== */
+  var TIPS = {
+    add: 'Denk dir gleich viele Stellen nach dem Komma, zum Beispiel 0,35 + 0,4 = 0,35 + 0,40. Dann rechnest du wie mit ganzen Zahlen.',
+    sub: 'Denk dir gleich viele Stellen nach dem Komma, zum Beispiel 1 − 0,35 = 1,00 − 0,35.',
+    mul: 'Mal 10, 100, 1000: Das Komma rutscht 1, 2 oder 3 Stellen nach rechts. Sonst erst ohne Komma rechnen und dann so viele Stellen abstreichen, wie beide Zahlen zusammen nach dem Komma haben.',
+    div: 'Durch 10, 100, 1000: Das Komma rutscht nach links. Durch eine Dezimalzahl: Verschiebe bei beiden Zahlen das Komma gleich weit nach rechts.',
+    ratadd: 'Stell dir den Zahlenstrahl vor: Bei + gehst du nach rechts. Von −8 aus 5 Schritte nach rechts ergibt −3.',
+    ratsub: 'Stell dir den Zahlenstrahl vor: Bei − gehst du nach links. Von 3 aus 7 Schritte nach links ergibt −4.'
+  };
+  RG.buildPack = function (t) {
+    var rows = [], slots = [], sol = {};
+    t.rows.forEach(function (r, i) {
+      var id = 'a' + i, w = Math.max(3, S(r.ans).length);
+      if (r.pre) rows.push([{ t: 's', id: id }, { t: 'x', v: r.after }]);
+      else if (r.gap) rows.push([{ t: 'x', v: r.text }, { t: 's', id: id }, { t: 'x', v: r.after }]);
+      else rows.push([{ t: 'x', v: r.text }, { t: 's', id: id }]);
+      slots.push({ id: id, w: w, dec: true });
+      sol[id] = S(r.ans);
+    });
+    var steps = t.rows.map(function (r) {
+      if (r.pre) return S(r.ans) + ' ' + r.after;
+      if (r.gap) return r.text + ' ' + S(r.ans) + ' ' + r.after;
+      return r.text + ' ' + S(r.ans);
+    });
+    return {
+      type: 'steps', rows: rows, slots: slots, solution: sol, steps: steps,
+      hint: t.kind === 'rat' ? TIPS['rat' + t.op] : TIPS[t.op],
+      check: function (read) {
+        var bad = [];
+        t.rows.forEach(function (r, i) { if (!RG.same(read('a' + i), RG.dVal(r.ans))) bad.push('a' + i); });
+        var msg = '';
+        if (bad.length) {
+          var signErr = t.kind === 'rat' && t.rows.some(function (r, i) { var v = read('a' + i); return v !== null && RG.same(-v, RG.dVal(r.ans)) && r.ans.i !== 0; });
+          msg = signErr ? 'Achte auf das Vorzeichen: Ist das Ergebnis links oder rechts von der 0?' : 'Die rot markierten Aufgaben stimmen noch nicht.';
+        }
+        return { ok: !bad.length, bad: bad, msg: msg };
+      }
+    };
+  };
+})(window.RG);
+
+</script>
+<script>
+/* Rechen-Gipfel 6 – Übungsformen auf dem Bildschirm
+   GridWidget  : schriftlich in Rechenkästchen, mit Komma-Spalte
+   StepsWidget : Felder in Rechenzeilen (Kopfrechnen, rationale Zahlen, Komma setzen)
+   ComboWidget : mehrere Teile hintereinander (Multiplikation: Kästchen + Komma setzen)
+   DivWidget   : schriftliche Division Schritt für Schritt, mit Komma */
+(function (RG) {
+  var el = RG.el, F = RG.fmt, S = RG.dStr;
+
+  /* =================== Rechenkästchen =================== */
+  function GridWidget(spec) {
+    var self = this;
+    this.spec = spec; this.vals = {}; this.state = {}; this.shown = {}; this.locked = false;
+    spec.rows.forEach(function (r) { if (r.key) self.vals[r.key] = {}; });
+    var first = spec.rows.filter(function (r) { return r.type === 'input'; })[0];
+    this.sel = { key: first.key, col: first.cols[first.cols.length - 1] };
+    this.supportsMark = spec.rows.some(function (r) { return r.mode === 'mark'; });
+    this.el = el('div', { class: 'grid-wrap' });
+    this.active = true;
+    this.render();
+  }
+  GridWidget.prototype.row = function (key) { return this.spec.rows.filter(function (r) { return r.key === key; })[0]; };
+  GridWidget.prototype.editableRows = function () { return this.spec.rows.filter(function (r) { return r.key; }); };
+  GridWidget.prototype.render = function () {
+    var self = this, C = this.spec.C;
+    var g = el('div', { class: 'grid', style: '--cols:' + (C + 1), role: 'group', 'aria-label': 'Rechenkästchen' });
+    this.spec.rows.forEach(function (r, ri) {
+      for (var c = 0; c <= C; c++) {
+        var cls = ['cell'], node;
+        if (c === 0) cls.push('first');
+        if (ri === 0) cls.push('top');
+        if (r.ruleTop) cls.push('rule');
+        if (r.small) cls.push('small');
+        if (c === 0 && r.sign) {
+          cls.push('sign');
+          node = el('div', { class: cls.join(' '), text: r.sign });
+        } else if (r.type === 'static') {
+          if (r.cls && r.cls[c]) cls.push(r.cls[c]);
+          node = el('div', { class: cls.join(' '), text: r.cells[c] || '' });
+        } else if (r.fixed && r.fixed[c]) {
+          cls.push('comma');
+          node = el('div', { class: cls.join(' '), text: r.fixed[c] });
+        } else if (r.cols.indexOf(c) >= 0) {
+          cls.push('in');
+          if (r.mode === 'mark') cls.push('mark');
+          if (!self.locked && self.active && self.sel && self.sel.key === r.key && self.sel.col === c) cls.push('sel');
+          if (self.state[r.key]) cls.push(self.state[r.key]);
+          if (self.shown[r.key] && self.shown[r.key][c]) cls.push('shown');
+          var v = self.vals[r.key][c] || '';
+          node = el('button', {
+            type: 'button', class: cls.join(' '), text: v,
+            'aria-label': r.label + ', Kästchen ' + c + (v ? ': ' + v : ', leer'),
+            onclick: (function (k, cc) { return function () { self.select(k, cc); }; })(r.key, c)
+          });
+        } else {
+          node = el('div', { class: cls.join(' ') });
+        }
+        g.appendChild(node);
+      }
+    });
+    var notes = [];
+    if (this.spec.rows.some(function (r) { return r.key === 'c'; })) notes.push('Kleine Kästchen: Platz für Merkzahlen (freiwillig).');
+    if (this.supportsMark) notes.push('Strich-Zeile: Tippe unter die Stelle, die du entbündelst.');
+    if (this.spec.rows.some(function (r) { return r.cls && Object.keys(r.cls).length; })) notes.push('Farbige Nullen sind ergänzt.');
+    this.el.replaceChildren(g, notes.length ? el('p', { class: 'grid-legend', text: notes.join(' ') }) : '');
+  };
+  GridWidget.prototype.select = function (key, col) {
+    if (this.locked) return;
+    this.sel = { key: key, col: col };
+    if (this.onFocus) this.onFocus();
+    if (this.row(key).mode === 'mark') this.toggle();
+    else this.render();
+  };
+  GridWidget.prototype.toggle = function () {
+    var v = this.vals[this.sel.key];
+    v[this.sel.col] = v[this.sel.col] ? '' : '|';
+    this.render();
+  };
+  GridWidget.prototype.type = function (d) {
+    if (this.locked || !this.sel || !/^\d$/.test(d)) return;
+    var r = this.row(this.sel.key);
+    if (r.mode === 'mark') { this.toggle(); return; }
+    this.vals[r.key][this.sel.col] = String(d);
+    this.state[r.key] = null;
+    var i = r.cols.indexOf(this.sel.col);
+    if (i > 0) this.sel = { key: r.key, col: r.cols[i - 1] };
+    this.render();
+  };
+  GridWidget.prototype.back = function () {
+    if (this.locked || !this.sel) return;
+    var r = this.row(this.sel.key), v = this.vals[r.key];
+    if (v[this.sel.col]) v[this.sel.col] = '';
+    else {
+      var i = r.cols.indexOf(this.sel.col);
+      if (i < r.cols.length - 1) { this.sel = { key: r.key, col: r.cols[i + 1] }; v[this.sel.col] = ''; }
+    }
+    this.state[r.key] = null;
+    this.render();
+  };
+  /* gibt false zurück, wenn es in diese Richtung nicht weitergeht */
+  GridWidget.prototype.move = function (dir) {
+    if (this.locked || !this.sel) return false;
+    var r = this.row(this.sel.key), i = r.cols.indexOf(this.sel.col), moved = false;
+    if (dir === 'left' && i > 0) { this.sel.col = r.cols[i - 1]; moved = true; }
+    else if (dir === 'right' && i < r.cols.length - 1) { this.sel.col = r.cols[i + 1]; moved = true; }
+    else if (dir === 'up' || dir === 'down') {
+      var rows = this.editableRows(), k = rows.indexOf(r) + (dir === 'up' ? -1 : 1);
+      if (k >= 0 && k < rows.length) {
+        var nr = rows[k], col = this.sel.col;
+        if (nr.cols.indexOf(col) < 0) col = col < nr.cols[0] ? nr.cols[0] : nr.cols[nr.cols.length - 1];
+        this.sel = { key: nr.key, col: col }; moved = true;
+      }
+    }
+    this.render();
+    return moved;
+  };
+  GridWidget.prototype.read = function (key) {
+    var r = this.row(key), v = this.vals[key];
+    var chars = r.cols.map(function (c) { return v[c] || ''; });
+    if (chars.every(function (c) { return c === ''; })) return null;
+    return Number(chars.map(function (c) { return c === '' ? '0' : c; }).join(''));
+  };
+  GridWidget.prototype.check = function () {
+    var self = this, res = this.spec.check(function (k) { return self.read(k); });
+    Object.keys(res.rows).forEach(function (k) { self.state[k] = res.rows[k] ? 'ok' : 'bad'; });
+    this.render();
+    return res;
+  };
+  GridWidget.prototype.reveal = function () {
+    var self = this, sol = this.spec.solution;
+    Object.keys(sol).forEach(function (k) {
+      if (!self.vals[k]) return;
+      self.shown[k] = {};
+      var row = self.row(k);
+      row.cols.forEach(function (c) {
+        var want = sol[k][c] || '';
+        if ((self.vals[k][c] || '') !== want) { self.vals[k][c] = want; if (want) self.shown[k][c] = true; }
+      });
+      if (row.type === 'input') self.state[k] = null;
+    });
+    this.locked = true;
+    this.render();
+  };
+  GridWidget.prototype.lock = function () { this.locked = true; this.render(); };
+  GridWidget.prototype.setActive = function (a) { this.active = a; this.render(); };
+  GridWidget.prototype.hint = function () { return this.spec.hint; };
+  GridWidget.prototype.steps = function () { return this.spec.steps; };
+  GridWidget.prototype.intro = 'Tippe ein Kästchen an und gib die Ziffern ein. Du rechnest von rechts nach links, darum springt der Rahmen nach links. Das Komma steht schon da.';
+
+  /* =================== Felder in Rechenzeilen =================== */
+  function StepsWidget(spec) {
+    var self = this;
+    this.spec = spec; this.vals = {}; this.state = {}; this.shown = {}; this.locked = false; this.active = true;
+    this.slots = {}; spec.slots.forEach(function (s) { self.slots[s.id] = s; });
+    this.order = spec.slots.filter(function (s) { return s.given === null || s.given === undefined; }).map(function (s) { return s.id; });
+    this.sel = this.order[0];
+    this.el = el('div', { class: 'steps' });
+    this.render();
+  }
+  StepsWidget.prototype.show = function (id) {
+    var v = this.vals[id], s = this.slots[id];
+    if (!v) return '';
+    return s.dec ? v : F(Number(v));
+  };
+  StepsWidget.prototype.render = function () {
+    var self = this;
+    var rows = this.spec.rows.map(function (row) {
+      var isFinal = row.some(function (t) { return t.t === 's' && self.slots[t.id].final; });
+      return el('div', { class: 'hs-row' + (isFinal ? ' final' : '') }, row.map(function (t) {
+        if (t.t === 'x') return el('span', { text: t.v });
+        if (t.t === 'r') return el('span', { class: 'ref', text: self.vals[t.id] ? self.show(t.id) : '…' });
+        var sl = self.slots[t.id];
+        if (sl.given !== null && sl.given !== undefined) return el('span', { class: 'slot given', style: '--w:' + sl.w, text: F(sl.given) });
+        var cls = ['slot'];
+        if (!self.locked && self.active && self.sel === t.id) cls.push('sel');
+        if (self.state[t.id]) cls.push(self.state[t.id]);
+        if (self.shown[t.id]) cls.push('shown');
+        var v = self.show(t.id);
+        return el('button', {
+          type: 'button', class: cls.join(' '), style: '--w:' + sl.w, text: v,
+          'aria-label': 'Eingabefeld' + (v ? ': ' + v : ', leer'),
+          onclick: function () { if (!self.locked) { self.sel = t.id; if (self.onFocus) self.onFocus(); self.render(); } }
+        });
+      }));
+    });
+    this.el.replaceChildren.apply(this.el, rows);
+  };
+  StepsWidget.prototype.type = function (d) {
+    if (this.locked || !this.sel) return;
+    var s = this.slots[this.sel], cur = this.vals[this.sel] || '';
+    if (d === ',') { if (!s.dec || cur.indexOf(',') >= 0) return; cur = (cur === '' || cur === '−' ? cur + '0' : cur) + ','; }
+    else if (d === '-') { if (!s.dec) return; cur = cur[0] === '−' ? cur.slice(1) : '−' + cur; }
+    else {
+      if (cur.replace(/[−,]/g, '').length >= 9) return;
+      cur = (cur === '0' ? '' : cur === '−0' ? '−' : cur) + d;
+    }
+    this.vals[this.sel] = cur;
+    this.state[this.sel] = null;
+    this.render();
+  };
+  StepsWidget.prototype.back = function () {
+    if (this.locked || !this.sel) return;
+    var cur = this.vals[this.sel] || '';
+    if (cur) this.vals[this.sel] = cur.slice(0, -1);
+    else this.move('left');
+    this.state[this.sel] = null;
+    this.render();
+  };
+  StepsWidget.prototype.move = function (dir) {
+    if (this.locked) return false;
+    var i = this.order.indexOf(this.sel), moved = false;
+    if ((dir === 'left' || dir === 'up') && i > 0) { this.sel = this.order[i - 1]; moved = true; }
+    if ((dir === 'right' || dir === 'down') && i < this.order.length - 1) { this.sel = this.order[i + 1]; moved = true; }
+    this.render();
+    return moved;
+  };
+  StepsWidget.prototype.nextEmpty = function () {
+    var self = this, i = this.order.indexOf(this.sel);
+    var rest = this.order.slice(i + 1).concat(this.order.slice(0, i + 1));
+    var nxt = rest.filter(function (id) { return !self.vals[id]; })[0];
+    if (nxt && this.vals[this.sel]) { this.sel = nxt; this.render(); return true; }
+    return false;
+  };
+  StepsWidget.prototype.read = function (id) {
+    var s = this.slots[id];
+    if (s && s.given !== null && s.given !== undefined) return s.given;
+    var v = this.vals[id];
+    if (!v) return null;
+    return s.dec ? RG.parseNum(v) : Number(v);
+  };
+  StepsWidget.prototype.check = function () {
+    var self = this, res = this.spec.check(function (id) { return self.read(id); });
+    this.order.forEach(function (id) {
+      if (res.bad.indexOf(id) >= 0) self.state[id] = 'bad';
+      else if (self.vals[id]) self.state[id] = 'ok';
+      else self.state[id] = null;
+    });
+    this.render();
+    return res;
+  };
+  StepsWidget.prototype.reveal = function () {
+    var self = this, sol = this.spec.solution;
+    this.order.forEach(function (id) {
+      if (sol[id] === undefined) { self.vals[id] = ''; self.state[id] = null; return; }
+      var want = String(sol[id]), have = self.read(id);
+      var wantNum = self.slots[id].dec ? RG.parseNum(want) : Number(want);
+      if (!RG.same(have, wantNum)) { self.vals[id] = want; self.shown[id] = true; }
+      self.state[id] = null;
+    });
+    this.locked = true;
+    this.render();
+  };
+  StepsWidget.prototype.lock = function () { this.locked = true; this.render(); };
+  StepsWidget.prototype.setActive = function (a) { this.active = a; this.render(); };
+  StepsWidget.prototype.hint = function () { return this.spec.hint; };
+  StepsWidget.prototype.steps = function () { return this.spec.steps; };
+  StepsWidget.prototype.intro = 'Tippe ein Feld an und gib das Ergebnis ein. Mit ▶ oder der Eingabetaste kommst du ins nächste Feld.';
+
+  /* =================== Mehrere Teile =================== */
+  function ComboWidget(spec) {
+    var self = this;
+    this.spec = spec;
+    this.parts = spec.parts.map(function (p) { return p.spec.type === 'grid' ? new GridWidget(p.spec) : new StepsWidget(p.spec); });
+    this.cur = 0;
+    this.el = el('div', { class: 'combo' });
+    spec.parts.forEach(function (p, i) {
+      var w = self.parts[i];
+      w.onFocus = function () { self.focus(i); };
+      self.el.appendChild(el('div', { class: 'combo-part' }, [el('p', { class: 'combo-label', text: p.label }), w.el]));
+    });
+    this.focus(0);
+  }
+  ComboWidget.prototype.focus = function (i) {
+    this.cur = i;
+    this.parts.forEach(function (p, k) { p.active = k === i; p.render(); });
+  };
+  ComboWidget.prototype.type = function (d) { this.parts[this.cur].type(d); };
+  ComboWidget.prototype.back = function () { this.parts[this.cur].back(); };
+  ComboWidget.prototype.move = function (dir) {
+    if (this.parts[this.cur].move(dir)) return true;
+    if ((dir === 'down' || dir === 'right') && this.cur < this.parts.length - 1) { this.focus(this.cur + 1); return true; }
+    if ((dir === 'up' || dir === 'left') && this.cur > 0) { this.focus(this.cur - 1); return true; }
+    return false;
+  };
+  ComboWidget.prototype.nextEmpty = function () {
+    var p = this.parts[this.cur];
+    if (p.nextEmpty && p.nextEmpty()) return true;
+    if (this.cur < this.parts.length - 1) { this.focus(this.cur + 1); return true; }
+    return false;
+  };
+  ComboWidget.prototype.check = function () {
+    var res = this.parts.map(function (p) { return p.check(); });
+    var ok = res.every(function (r) { return r.ok; });
+    var firstBad = res.filter(function (r) { return !r.ok; })[0];
+    return { ok: ok, msg: ok ? '' : firstBad.msg };
+  };
+  ComboWidget.prototype.reveal = function () { this.parts.forEach(function (p) { p.reveal(); }); };
+  ComboWidget.prototype.lock = function () { this.parts.forEach(function (p) { p.lock(); }); };
+  ComboWidget.prototype.hint = function () { return this.spec.hint; };
+  ComboWidget.prototype.steps = function () { return this.spec.steps; };
+  ComboWidget.prototype.intro = 'Rechne zuerst in den Kästchen ohne Komma. Danach zählst du die Stellen und setzt das Komma. Mit ▼ kommst du zum nächsten Teil.';
+
+  /* =================== Division Schritt für Schritt, mit Komma =================== */
+  function DivWidget(t, stufe) {
+    var self = this;
+    this.t = t; this.stufe = stufe; this.guided = true;
+    this.digits = RG.dDigits(t.Dsh);
+    this.intLen = this.digits.length - t.Dsh.k;
+    this.steps = RG.divSteps(this.digits, t.d);
+    this.qText = S(t.q);
+    this.prompts = [];
+    if (t.shift) {
+      this.prompts.push({ type: 'shift' });
+      this.prompts.push({ type: 'newD' });
+    }
+    this.steps.forEach(function (s, k) {
+      self.prompts.push({ k: k, type: 'q' });
+      if (s.q > 0) {
+        if (stufe === 1) self.prompts.push({ k: k, type: 'prod' });
+        self.prompts.push({ k: k, type: 'rem' });
+      }
+    });
+    this.shown = this.steps.map(function () { return {}; });
+    this.red = this.steps.map(function () { return {}; });
+    this.shiftDone = !t.shift;
+    this.pi = 0; this.typed = ''; this.mistakes = 0; this.miss = 0; this.done = false;
+    this.el = el('div', { class: 'div-wrap' });
+    this.render();
+  }
+  DivWidget.prototype.cur = function () { return this.prompts[this.pi]; };
+  DivWidget.prototype.expected = function (p) {
+    if (p.type === 'shift') return this.t.shift;
+    if (p.type === 'newD') return RG.dVal(this.t.Dsh);
+    var s = this.steps[p.k];
+    return p.type === 'q' ? s.q : (p.type === 'prod' ? s.prod : s.rem);
+  };
+  DivWidget.prototype.question = function (p) {
+    var t = this.t;
+    if (p.type === 'shift') return 'Der Divisor ' + S(t.dv) + ' soll eine ganze Zahl werden. Um wie viele Stellen verschiebst du das Komma bei beiden Zahlen nach rechts?';
+    if (p.type === 'newD') return 'Neue Aufgabe: ? : ' + t.d + '. Wie heißt die neue erste Zahl?';
+    var s = this.steps[p.k];
+    if (p.type === 'q') return 'Wie oft passt ' + t.d + ' in ' + s.cur + '?';
+    if (p.type === 'prod') return s.q + ' · ' + t.d + ' =';
+    return this.stufe === 1 ? s.cur + ' − ' + s.prod + ' =' : 'Wie viel bleibt übrig?';
+  };
+  /* Spalte der Ziffer i im Dividenden (Spalte 0 für das Minuszeichen, Komma hat eine eigene Spalte) */
+  DivWidget.prototype.colOf = function (i) { return 1 + i + (this.t.Dsh.k && i >= this.intLen ? 1 : 0); };
+  DivWidget.prototype.render = function () {
+    var self = this, t = this.t, nd = this.digits.length, ds = String(t.d);
+    var commaCol = t.Dsh.k ? 1 + this.intLen : null;
+    var C = this.colOf(nd - 1) + 1 + ds.length + 1 + this.qText.length;
+    var rows = [];
+    function blank() { var a = []; for (var i = 0; i <= C; i++) a.push({ v: '', c: [] }); return a; }
+    if (!this.shiftDone) {
+      var g0 = el('div', { class: 'div-original' }, [el('span', { text: S(t.Dv) + ' : ' + S(t.dv) })]);
+      this.el.replaceChildren(g0, this.promptEl());
+      return;
+    }
+    var top = blank();
+    for (var i = 0; i < nd; i++) top[this.colOf(i)].v = this.digits[i];
+    if (commaCol) top[commaCol].v = ',';
+    var c = this.colOf(nd - 1) + 1;
+    top[c++].v = ':';
+    for (i = 0; i < ds.length; i++) top[c++].v = ds[i];
+    top[c++].v = '=';
+    /* Ergebnis schrittweise zeigen: führende Nullen und Komma erscheinen mit der ersten Ziffer */
+    var answered = this.shown.filter(function (x) { return x.q; }).length;
+    var qDigits = this.qText.replace(',', ''), lead = qDigits.length - this.steps.length;
+    var reveal = answered ? lead + answered : 0, seen = 0, intQ = this.qText.indexOf(',') < 0 ? qDigits.length : this.qText.indexOf(',');
+    for (i = 0; i < this.qText.length; i++) {
+      var ch = this.qText[i];
+      if (ch === ',') { if (reveal > intQ) top[c + i].v = ','; continue; }
+      if (seen < reveal) {
+        top[c + i].v = ch;
+        var stepIdx = seen - lead;
+        if (stepIdx >= 0 && this.red[stepIdx] && this.red[stepIdx].q) top[c + i].c.push('shown');
+      }
+      seen++;
+    }
+    rows.push(top);
+    var curRow = { 0: top };
+    function put(row, txt, endDigit, red, down) {
+      for (var m = 0; m < txt.length; m++) {
+        var col = self.colOf(endDigit - (txt.length - 1 - m));
+        if (col < 1) continue;
+        row[col].v = txt[m];
+        if (red) row[col].c.push('shown');
+        if (down && m === txt.length - 1) row[col].c.push('down');
+      }
+    }
+    this.steps.forEach(function (s, k) {
+      if (self.shown[k].prod && s.q > 0) {
+        var r = blank(), ps = String(s.prod);
+        put(r, ps, s.end, self.red[k].prod, false);
+        for (var j = 0; j < ps.length; j++) { var cc = self.colOf(s.end - j); if (cc >= 1) r[cc].c.push('ul'); }
+        var mc = self.colOf(s.end - ps.length + 1) - 1;
+        if (mc === commaCol) mc--;
+        r[Math.max(0, mc)].v = '−';
+        rows.push(r);
+      }
+      if (!self.shown[k].rem) return;
+      if (s.q === 0) {
+        var same = curRow[k];
+        if (s.down !== undefined && same && same !== top) { put(same, String(s.down), s.end + 1, false, true); curRow[k + 1] = same; }
+        else if (s.down !== undefined) { var r0 = blank(); put(r0, String(s.next), s.end + 1, false, true); rows.push(r0); curRow[k + 1] = r0; }
+        return;
+      }
+      var r2 = blank();
+      if (s.down !== undefined) put(r2, String(s.next), s.end + 1, self.red[k].rem, true);
+      else put(r2, String(s.rem), s.end, self.red[k].rem, false);
+      rows.push(r2);
+      curRow[k + 1] = r2;
+    });
+    var p = this.cur();
+    if (p && p.k !== undefined) {
+      var hs = this.steps[p.k], row = curRow[p.k];
+      if (row) {
+        var from = p.k === 0 ? 0 : hs.end - String(hs.cur).length + 1;
+        for (i = Math.max(0, from); i <= hs.end; i++) row[this.colOf(i)].c.push('hl');
+      }
+    }
+    var g = el('div', { class: 'grid', style: '--cols:' + (C + 1), role: 'group', 'aria-label': 'Schriftliche Division' });
+    rows.forEach(function (r, ri) {
+      r.forEach(function (cell, ci) {
+        var cls = ['cell'].concat(cell.c);
+        if (ci === 0) cls.push('first');
+        if (ri === 0) cls.push('top');
+        g.appendChild(el('div', { class: cls.join(' '), text: cell.v }));
+      });
+    });
+    var head = t.shift ? el('p', { class: 'combo-label', text: S(t.Dv) + ' : ' + S(t.dv) + ' wird zu ' + S(t.Dsh) + ' : ' + t.d }) : '';
+    this.el.replaceChildren(head, g, this.promptEl());
+  };
+  DivWidget.prototype.promptEl = function () {
+    if (this.done) return el('div', { class: 'div-prompt div-done' }, [el('span', { text: 'Fertig: ' + S(this.t.Dv) + ' : ' + S(this.t.dv) + ' = ' + this.qText })]);
+    return el('div', { class: 'div-prompt' }, [
+      el('span', { text: this.question(this.cur()) }),
+      el('span', { class: 'slot sel', style: '--w:3', text: this.typed, 'aria-label': 'Deine Antwort' + (this.typed ? ': ' + this.typed : ', leer') })
+    ]);
+  };
+  DivWidget.prototype.type = function (d) {
+    if (this.done) return;
+    var p = this.cur();
+    if (d === ',') { if (p.type !== 'newD' || this.typed.indexOf(',') >= 0) return; this.typed = (this.typed || '0') + ','; }
+    else if (/^\d$/.test(d)) { if (this.typed.length >= 8) return; this.typed = this.typed === '0' ? d : this.typed + d; }
+    else return;
+    this.render();
+  };
+  DivWidget.prototype.back = function () { if (!this.done) { this.typed = this.typed.slice(0, -1); this.render(); } };
+  DivWidget.prototype.move = function () { return false; };
+  DivWidget.prototype.markDone = function (p, red) {
+    if (p.type === 'shift') return;
+    if (p.type === 'newD') { this.shiftDone = true; return; }
+    var s = this.steps[p.k];
+    this.shown[p.k][p.type] = true;
+    if (red) this.red[p.k][p.type] = true;
+    if (p.type === 'q') {
+      if (s.q === 0) this.shown[p.k].rem = true;
+      else if (this.stufe === 2) this.shown[p.k].prod = true;
+    }
+  };
+  DivWidget.prototype.afterMsg = function (p) {
+    var t = this.t;
+    if (p.type === 'shift') return 'Aus ' + S(t.dv) + ' wird ' + t.d + '.';
+    if (p.type === 'newD') return 'Jetzt rechnest du ' + S(t.Dsh) + ' : ' + t.d + '.';
+    var s = this.steps[p.k], msg = '';
+    if (p.type === 'q') {
+      var prevEnd = p.k === 0 ? -1 : this.steps[p.k - 1].end;
+      if (t.Dsh.k && s.end >= this.intLen && prevEnd < this.intLen) {
+        msg += p.k === 0 || this.intLen === 0 ? 'Vor dem Komma passt die ' + t.d + ' nicht hinein: Im Ergebnis steht 0 und dann das Komma. ' : 'Du hast das Komma überschritten: Setze im Ergebnis das Komma. ';
+      }
+      if (s.q === 0) msg += t.d + ' passt nicht in ' + s.cur + ', also 0 an. ';
+    }
+    if ((p.type === 'rem' || (p.type === 'q' && s.q === 0)) && s.down !== undefined) msg += 'Die ' + s.down + ' kommt nach unten. Jetzt rechnest du mit ' + s.next + '.';
+    return msg;
+  };
+  DivWidget.prototype.submit = function () {
+    if (this.done) return { state: 'done', ok: this.mistakes === 0 };
+    if (this.typed === '') return { state: 'empty', msg: 'Tippe zuerst eine Zahl ein.' };
+    var p = this.cur(), exp = this.expected(p), val = RG.parseNum(this.typed), t = this.t;
+    this.typed = '';
+    var msg, wrong = false;
+    if (RG.same(val, exp)) {
+      this.miss = 0;
+      this.markDone(p, false);
+      msg = RG.pick(['Richtig!', 'Stimmt!', 'Genau!', 'Super!']) + ' ' + this.afterMsg(p);
+    } else {
+      this.mistakes++; this.miss++;
+      if (this.miss < 2) {
+        var h, s = this.steps[p.k];
+        if (p.type === 'shift') h = 'Zähle die Stellen nach dem Komma beim Divisor ' + S(t.dv) + '.';
+        else if (p.type === 'newD') h = 'Verschiebe das Komma bei ' + S(t.Dv) + ' um ' + t.shift + (t.shift === 1 ? ' Stelle' : ' Stellen') + ' nach rechts.';
+        else if (p.type === 'q') h = t.d + ' · ' + val + ' = ' + (t.d * val) + '. ' + (t.d * val > s.cur ? 'Das ist mehr als ' + s.cur + '. Nimm weniger.' : 'Da passt noch mehr hinein.');
+        else if (p.type === 'prod') h = 'Rechne mit dem Einmaleins: ' + s.q + ' mal ' + t.d + '.';
+        else h = 'Ziehe ab: ' + s.cur + ' − ' + s.prod + '.';
+        this.render();
+        return { state: 'retry', msg: 'Noch nicht. ' + h };
+      }
+      this.miss = 0; wrong = true;
+      this.markDone(p, true);
+      msg = 'Richtig ist ' + (p.type === 'newD' ? S(t.Dsh) : exp) + '. ' + this.afterMsg(p);
+    }
+    this.pi++;
+    if (this.pi >= this.prompts.length) { this.done = true; this.render(); return { state: 'done', ok: this.mistakes === 0, wrong: wrong, msg: msg }; }
+    this.render();
+    return { state: 'next', wrong: wrong, msg: msg };
+  };
+  DivWidget.prototype.hint = function () {
+    var p = this.cur(), t = this.t; if (!p) return '';
+    if (p.type === 'shift') return S(t.dv) + ' hat ' + t.shift + (t.shift === 1 ? ' Stelle' : ' Stellen') + ' nach dem Komma.';
+    if (p.type === 'newD') return 'Das Komma wandert bei ' + S(t.Dv) + ' genauso weit nach rechts wie beim Divisor.';
+    var s = this.steps[p.k];
+    if (p.type === 'q') return 'Sag die ' + t.d + 'er-Reihe auf: ' + [1, 2, 3, 4].map(function (k) { return k * t.d; }).join(', ') + ', … Welche Zahl ist am nächsten an ' + s.cur + ', aber nicht größer?';
+    if (p.type === 'prod') return 'Einmaleins: ' + s.q + ' mal ' + t.d + '.';
+    return 'Ziehe ab: ' + s.cur + ' − ' + s.prod + '.';
+  };
+  DivWidget.prototype.lock = function () { this.done = true; this.render(); };
+  DivWidget.prototype.intro = 'Beantworte die Fragen Schritt für Schritt. Wenn du das Komma überschreitest, kommt im Ergebnis das Komma.';
+
+  RG.GridWidget = GridWidget;
+  RG.StepsWidget = StepsWidget;
+  RG.ComboWidget = ComboWidget;
+  RG.DivWidget = DivWidget;
+})(window.RG);
+
+</script>
+<script>
+/* Rechen-Gipfel 6 – Ablauf
+   Dezimalzahlen: Rechenart → Verfahren (Schriftlich / Kopfrechnen) → Stufe → Runden mit 5 Aufgaben
+   Rationale Zahlen: Rechenart (Addieren / Subtrahieren) → Stufe → Runden mit 5 Päckchen */
+(function (RG) {
+  var el = RG.el, F = RG.fmt, S = RG.dStr;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var OPS = {
+    dez: {
+      add: { name: 'Plus-Alm', verb: 'Addieren', sym: '+' },
+      sub: { name: 'Minus-Spitz', verb: 'Subtrahieren', sym: '−' },
+      mul: { name: 'Mal-Horn', verb: 'Multiplizieren', sym: '·' },
+      div: { name: 'Teil-Kogel', verb: 'Dividieren', sym: ':' }
+    },
+    rat: {
+      add: { name: 'Frost-Alm: unter null', verb: 'Addieren', sym: '+' },
+      sub: { name: 'Frost-Spitz: unter null', verb: 'Subtrahieren', sym: '−' }
+    }
+  };
+  var MODES = {
+    sch: { name: 'Schriftlich', desc: 'Untereinander in Rechenkästchen. Komma unter Komma, Stelle für Stelle.' },
+    km: { name: 'Kopfrechnen', desc: 'Päckchen mit je drei Aufgaben. Rechne im Kopf und tippe nur das Ergebnis ein.' }
+  };
+  var EXAMPLES = {
+    'add-sch': '   12,5\n+   3,47\n────────\n   15,97', 'add-km': '0,6 + 0,8 = 1,4\n0,37 + ? = 1',
+    'sub-sch': '  12,50\n−  3,47\n────────\n   9,03', 'sub-km': '1 − 0,35 = 0,65\n3,4 − 1,7 = 1,7',
+    'mul-sch': '3,45 · 2,6\n345 · 26 = 8970\n→ 8,970', 'mul-km': '0,3 · 4 = 1,2\n2,45 · 100 = 245',
+    'div-sch': '8,75 : 5 = 1,75\n2,56 : 0,4 = 25,6 : 4', 'div-km': '2,4 : 2 = 1,2\n3,6 : 0,4 = 9'
+  };
+  var STUFE = {
+    'dez-add-sch-1': 'Zahlen mit gleich vielen Stellen nach dem Komma.',
+    'dez-add-sch-2': 'Verschieden viele Stellen nach dem Komma, drei und vier Zahlen.',
+    'dez-sub-sch-1': 'Bayerisches Verfahren: abziehen und entbündeln, gleich viele Stellen.',
+    'dez-sub-sch-2': 'Verschieden viele Stellen: Nullen ergänzen, auch ganze Zahlen minus Dezimalzahl.',
+    'dez-mul-sch-1': 'Dezimalzahl mal einstellige Zahl.',
+    'dez-mul-sch-2': 'Dezimalzahl mal Dezimalzahl, auch mit zweistelligem Faktor.',
+    'dez-div-sch-1': 'Dezimalzahl durch einstellige Zahl. Komma überschritten, Komma setzen.',
+    'dez-div-sch-2': 'Durch eine Dezimalzahl: erst das Komma verschieben, dann teilen.',
+    'dez-add-km-1': 'Zehntel und Hundertstel addieren, auch über die 1.',
+    'dez-add-km-2': 'Ergänzen bis 1 und zur nächsten ganzen Zahl, drei Summanden.',
+    'dez-sub-km-1': 'Zehntel und Hundertstel subtrahieren, auch 1 − 0,35.',
+    'dez-sub-km-2': 'Ganze Zahl minus Dezimalzahl, fehlende Zahl finden.',
+    'dez-mul-km-1': 'Mal 10, 100, 1000 und mal einstellige Zahlen.',
+    'dez-mul-km-2': 'Dezimalzahl mal Dezimalzahl, mal 0,1 und 0,01.',
+    'dez-div-km-1': 'Durch 10, 100, 1000 und durch einstellige Zahlen.',
+    'dez-div-km-2': 'Durch Dezimalzahlen wie 0,1, 0,4 oder 1,2.',
+    'rat-add-km-1': 'Ganze Zahlen wie −8 + 5. Zahlen bis 100.',
+    'rat-add-km-2': 'Dezimalzahlen wie −2,5 + 4, drei Zahlen, große Zahlen.',
+    'rat-sub-km-1': 'Ganze Zahlen wie 3 − 7 oder −13 − 3. Zahlen bis 100.',
+    'rat-sub-km-2': 'Dezimalzahlen, drei Zahlen und große Zahlen.'
+  };
+  var SIGNAL = {
+    add: 'Achte auf Wörter wie „insgesamt“ oder „zusammen“.',
+    sub: 'Achte auf Wörter wie „übrig“, „bleibt“ oder „abgesägt“.',
+    mul: 'Achte auf Wörter wie „je“, „jedes“ oder „Fläche“.',
+    div: 'Achte auf Wörter wie „gerecht“, „teilen“ oder „zu je“.',
+    ratadd: 'Wärmer oder Einzahlen heißt: plus.',
+    ratsub: 'Kälter oder Abbuchen heißt: minus.'
+  };
+  var PRAISE = ['Klasse!', 'Super gerechnet!', 'Stark!', 'Richtig!', 'Bärig!', 'Spitze!', 'Genau so!'];
+
+  /* ---------- Speicher ---------- */
+  var save = RG.store.load() || { points: 0, paths: {} };
+  if (!save.paths) save.paths = {};
+  function path(id) {
+    if (!save.paths[id]) save.paths[id] = { level: 1, stars: [0, 0, 0, 0, 0], done: false };
+    return save.paths[id];
+  }
+  function persist() { RG.store.save(save); }
+
+  /* ---------- Grafik ---------- */
+  function mascot(mood) {
+    var mouth = mood === 'happy' ? '<path d="M50 88 Q60 97 70 88" fill="none" stroke="#3a2a1e" stroke-width="3" stroke-linecap="round"/>'
+      : mood === 'wow' ? '<ellipse cx="60" cy="90" rx="6" ry="7" fill="#3a2a1e"/>'
+      : '<path d="M52 90 L68 89" stroke="#3a2a1e" stroke-width="3" stroke-linecap="round"/>';
+    return '<svg viewBox="0 0 120 120" role="img" aria-label="Gamsi, die Gämse">' +
+      '<path d="M44 40 C38 20 42 8 52 7 C58 7 59 13 54 15 C49 17 49 27 52 40Z" fill="#2c211a"/>' +
+      '<path d="M76 40 C82 20 78 8 68 7 C62 7 61 13 66 15 C71 17 71 27 68 40Z" fill="#2c211a"/>' +
+      '<ellipse cx="30" cy="48" rx="13" ry="7" transform="rotate(-25 30 48)" fill="#b8804c"/>' +
+      '<ellipse cx="90" cy="48" rx="13" ry="7" transform="rotate(25 90 48)" fill="#b8804c"/>' +
+      '<path d="M60 34 C82 34 92 52 90 72 C88 92 76 106 60 106 C44 106 32 92 30 72 C28 52 38 34 60 34Z" fill="#f2e3c9"/>' +
+      '<path d="M38 48 C42 60 46 74 54 84 L50 86 C40 76 34 62 33 52Z" fill="#4a3526"/>' +
+      '<path d="M82 48 C78 60 74 74 66 84 L70 86 C80 76 86 62 87 52Z" fill="#4a3526"/>' +
+      '<circle cx="47" cy="62" r="5" fill="#1d1510"/><circle cx="73" cy="62" r="5" fill="#1d1510"/>' +
+      '<circle cx="48.5" cy="60.5" r="1.6" fill="#fff"/><circle cx="74.5" cy="60.5" r="1.6" fill="#fff"/>' +
+      '<ellipse cx="60" cy="80" rx="7" ry="4.5" fill="#3a2a1e"/>' + mouth + '</svg>';
+  }
+  function setMascot(id, mood, hop) {
+    var m = $(id); if (!m) return;
+    m.innerHTML = mascot(mood);
+    if (hop) { m.classList.remove('hop'); void m.offsetWidth; m.classList.add('hop'); }
+  }
+  function mountain(world, op) {
+    var symbol = op === 'mul' ? '<circle cx="36" cy="34" r="7" fill="var(--accent)"/>'
+      : op === 'div' ? '<circle cx="36" cy="24" r="6" fill="var(--accent)"/><circle cx="36" cy="44" r="6" fill="var(--accent)"/>'
+      : '<text x="36" y="45" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="34" fill="var(--accent)">' + OPS[world][op].sym + '</text>';
+    var frost = world === 'rat'
+      ? '<line x1="0" y1="96" x2="240" y2="96" stroke="var(--fg)" stroke-width="2" stroke-dasharray="6 5"/><text x="232" y="91" text-anchor="end" font-family="Andika, sans-serif" font-size="13" font-weight="700" fill="var(--fg)">0</text>'
+      : '';
+    var comma = world === 'dez' ? '<text x="168" y="112" font-family="Baloo 2, sans-serif" font-weight="800" font-size="30" fill="var(--card)">0,5</text>' : '';
+    return '<svg viewBox="0 0 240 120" aria-hidden="true">' +
+      '<polygon points="0,120 70,46 104,74 150,18 240,120" fill="var(--accent)"/>' +
+      '<polygon points="150,18 168,40 158,36 148,46 138,36 132,40" fill="var(--snow)"/>' +
+      '<polygon points="70,46 82,59 74,56 66,62 60,56" fill="var(--snow)"/>' +
+      '<line x1="150" y1="18" x2="150" y2="2" stroke="var(--fg)" stroke-width="2"/><polygon points="150,2 164,6 150,10" fill="var(--sun)"/>' +
+      frost + comma +
+      '<circle cx="36" cy="34" r="24" fill="var(--card)"/>' + symbol + '</svg>';
+  }
+  function star(on, size) {
+    size = size || 16;
+    return '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.6.7-5 4.5 1.4 6.6L12 17.2l-5.9 3.3 1.4-6.6-5-4.5 6.6-.7z" fill="' + (on ? 'var(--sun)' : 'none') + '" stroke="' + (on ? 'var(--sun)' : 'var(--line)') + '" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  }
+  function trail(id) {
+    var p = path(id), box = el('div', { class: 'trail' });
+    for (var i = 0; i < 5; i++) {
+      var reached = p.done || p.level > i + 1, current = !p.done && p.level === i + 1;
+      var fill = reached ? 'var(--accent)' : current ? 'var(--sun)' : 'var(--card)';
+      var hut = el('div', { class: 'hut' });
+      hut.innerHTML = '<svg viewBox="0 0 40 34" aria-hidden="true"><path d="M4 16 L20 3 L36 16" fill="none" stroke="var(--fg)" stroke-width="2.5" stroke-linejoin="round"/><rect x="8" y="15" width="24" height="16" rx="2" fill="' + fill + '" stroke="var(--fg)" stroke-width="2"/><rect x="17" y="21" width="6" height="10" fill="var(--card)" stroke="var(--fg)" stroke-width="1.5"/></svg>' +
+        '<span>' + star(p.stars[i] >= 1, 11) + star(p.stars[i] >= 2, 11) + star(p.stars[i] >= 3, 11) + '</span><span>Hütte ' + (i + 1) + '</span>';
+      box.appendChild(hut);
+    }
+    return box;
+  }
+
+  /* Zahlenstrahl als Tipp bei rationalen Zahlen */
+  function numberLine(r) {
+    var pts = [RG.dVal(r.terms[0])], acc = pts[0];
+    for (var j = 1; j < r.terms.length; j++) { acc = r.ops[j - 1] === '+' ? acc + RG.dVal(r.terms[j]) : acc - RG.dVal(r.terms[j]); pts.push(Math.round(acc * 1000) / 1000); }
+    var lo = Math.min.apply(null, pts.concat([0])), hi = Math.max.apply(null, pts.concat([0]));
+    var span = hi - lo || 1, steps = [1, 2, 5, 10, 20, 50, 100, 200, 500], step = 1;
+    for (var k = 0; k < steps.length; k++) { step = steps[k]; if (span / step <= 14) break; }
+    lo = Math.floor(lo / step) * step - step; hi = Math.ceil(hi / step) * step + step;
+    var W = 600, x0 = 30, x1 = W - 30, y = 92;
+    function X(v) { return x0 + (v - lo) / (hi - lo) * (x1 - x0); }
+    var svg = '<svg viewBox="0 0 ' + W + ' 130" role="img" aria-label="Zahlenstrahl">';
+    svg += '<line x1="' + x0 + '" y1="' + y + '" x2="' + x1 + '" y2="' + y + '" stroke="var(--fg)" stroke-width="2"/>';
+    svg += '<polygon points="' + (x1 + 10) + ',' + y + ' ' + x1 + ',' + (y - 6) + ' ' + x1 + ',' + (y + 6) + '" fill="var(--fg)"/>';
+    for (var v = lo; v <= hi + 1e-9; v += step) {
+      var xx = X(v), zero = Math.abs(v) < 1e-9;
+      svg += '<line x1="' + xx + '" y1="' + (y - (zero ? 10 : 6)) + '" x2="' + xx + '" y2="' + (y + (zero ? 10 : 6)) + '" stroke="var(--fg)" stroke-width="' + (zero ? 3 : 1.5) + '"/>';
+      svg += '<text x="' + xx + '" y="' + (y + 26) + '" text-anchor="middle" font-family="Andika, sans-serif" font-size="14" font-weight="' + (zero ? 800 : 400) + '" fill="var(--fg)">' + S(RG.dNorm({ i: Math.round(v * 1000), k: 3 })) + '</text>';
+    }
+    var colors = ['var(--ratadd)', 'var(--ratsub)', 'var(--sun)'];
+    for (j = 1; j < pts.length; j++) {
+      var a = X(pts[j - 1]), b = X(pts[j]), mid = (a + b) / 2, h = 22 + j * 10, c = colors[(j - 1) % 3];
+      svg += '<path d="M' + a + ' ' + (y - 4) + ' Q' + mid + ' ' + (y - h * 2) + ' ' + b + ' ' + (y - 4) + '" fill="none" stroke="' + c + '" stroke-width="3"/>';
+      svg += '<polygon points="' + b + ',' + (y - 3) + ' ' + (b + (b > a ? -9 : 9)) + ',' + (y - 13) + ' ' + (b + (b > a ? -2 : 2)) + ',' + (y - 15) + '" fill="' + c + '"/>';
+      svg += '<text x="' + mid + '" y="' + (y - h - 6) + '" text-anchor="middle" font-family="Andika, sans-serif" font-size="15" font-weight="700" fill="var(--fg)">' + r.ops[j - 1] + ' ' + S(r.terms[j]) + '</text>';
+    }
+    svg += '<circle cx="' + X(pts[0]) + '" cy="' + y + '" r="6" fill="var(--accent)"/>';
+    return svg + '</svg>';
+  }
+
+  /* ---------- Bildschirme ---------- */
+  var G = { world: null, op: null, mode: null, stufe: null };
+  function opKey() { return G.world === 'rat' ? 'rat' + G.op : (G.op || 'add'); }
+  function show(name) {
+    ['home', 'mode', 'stufe', 'play', 'done'].forEach(function (s) { $('screen-' + s).hidden = s !== name; });
+    document.querySelector('.app').setAttribute('data-op', opKey());
+    window.scrollTo(0, 0);
+  }
+  function pathId() { return G.world + '-' + G.op + '-' + G.mode + '-' + G.stufe; }
+
+  function opCard(world, op) {
+    var modes = world === 'rat' ? ['km'] : ['sch', 'km'], huts = 0;
+    modes.forEach(function (m) { [1, 2].forEach(function (s) { var p = path(world + '-' + op + '-' + m + '-' + s); huts += p.done ? 5 : p.level - 1; }); });
+    return el('button', {
+      type: 'button', class: 'op-card', 'data-op': world === 'rat' ? 'rat' + op : op,
+      onclick: function () { G.world = world; G.op = op; if (world === 'rat') { G.mode = 'km'; renderStufe(); } else renderMode(); }
+    }, [
+      el('div', { html: mountain(world, op) }),
+      el('span', { class: 'op-name', text: OPS[world][op].verb }),
+      el('span', { class: 'op-sub', text: OPS[world][op].name }),
+      el('span', { class: 'op-progress', text: huts + ' von ' + modes.length * 10 + ' Hütten geschafft' })
+    ]);
+  }
+
+  function renderHome() {
+    G.world = null; G.op = null;
+    setMascot('home-mascot', 'happy');
+    $('home-points').textContent = F(save.points) + ' Punkte';
+    $('op-grid').replaceChildren.apply($('op-grid'), ['add', 'sub', 'mul', 'div'].map(function (op) { return opCard('dez', op); }));
+    $('op-grid-rat').replaceChildren.apply($('op-grid-rat'), ['add', 'sub'].map(function (op) { return opCard('rat', op); }));
+    show('home');
+  }
+
+  function renderMode() {
+    $('mode-crumb').textContent = 'Dezimalzahlen · ' + OPS.dez[G.op].verb;
+    var grid = $('mode-grid');
+    grid.replaceChildren();
+    ['sch', 'km'].forEach(function (m) {
+      grid.appendChild(el('button', { type: 'button', class: 'choice', onclick: function () { G.mode = m; renderStufe(); } }, [
+        el('h3', { text: MODES[m].name }),
+        el('p', { text: MODES[m].desc }),
+        el('div', { class: 'example' }, [el('pre', { text: EXAMPLES[G.op + '-' + m] })])
+      ]));
+    });
+    show('mode');
+  }
+
+  function renderStufe() {
+    $('stufe-crumb').textContent = G.world === 'rat' ? 'Rationale Zahlen · ' + OPS.rat[G.op].verb : 'Dezimalzahlen · ' + OPS.dez[G.op].verb + ' · ' + MODES[G.mode].name;
+    document.querySelector('#screen-stufe .back-btn').setAttribute('data-go', G.world === 'rat' ? 'home' : 'mode');
+    var grid = $('stufe-grid');
+    grid.replaceChildren();
+    [1, 2].forEach(function (s) {
+      var id = G.world + '-' + G.op + '-' + G.mode + '-' + s, p = path(id);
+      grid.appendChild(el('button', { type: 'button', class: 'choice', onclick: function () { G.stufe = s; startRound(); } }, [
+        el('h3', { text: 'Stufe ' + s }),
+        el('p', { text: STUFE[id] }),
+        trail(id),
+        el('span', { class: 'trail-note', text: p.done ? 'Gipfel erreicht! Du kannst weiter üben.' : 'Weiter bei Hütte ' + p.level })
+      ]));
+    });
+    show('stufe');
+  }
+
+  /* ---------- Runde ---------- */
+  function startRound() {
+    var p = path(pathId());
+    G.level = p.done ? 5 : p.level;
+    G.tasks = []; G.results = []; G.idx = 0; G.streak = 0; G.roundPoints = 0;
+    for (var i = 0; i < 5; i++) {
+      var lvl = i === 4 ? Math.min(5, G.level + 1) : G.level;
+      var t = RG.generate(G.world, G.op, G.mode, G.stufe, lvl);
+      t.bonus = i === 4;
+      var wantSach = (i === 3 && (G.level >= 2 || G.stufe === 2)) || (i === 1 && G.level >= 4);
+      if (wantSach && (G.mode === 'sch' || G.world === 'rat')) {
+        if (G.world === 'rat') {
+          var one = { world: 'rat', kind: 'rat', op: G.op, rows: [t.rows[0]] };
+          var sr = RG.makeSach(one);
+          if (sr) { t = one; t.bonus = i === 4; t.sach = sr; }
+        } else t.sach = RG.makeSach(t);
+        if (!t.sach) delete t.sach;
+      }
+      G.tasks.push(t);
+    }
+    $('play-path').textContent = G.world === 'rat' ? 'Rationale Zahlen · ' + OPS.rat[G.op].verb + ' · Stufe ' + G.stufe
+      : OPS.dez[G.op].verb + ' · ' + MODES[G.mode].name + ' · Stufe ' + G.stufe;
+    $('play-level').textContent = 'Hütte ' + G.level + ' von 5';
+    show('play');
+    showTask();
+  }
+
+  function dots() {
+    var box = $('play-dots');
+    box.replaceChildren();
+    G.tasks.forEach(function (t, i) {
+      var cls = 'dot' + (G.results[i] === 'ok' ? ' ok' : G.results[i] === 'meh' ? ' meh' : i === G.idx ? ' now' : '') + (t.bonus ? ' bonus' : '');
+      box.appendChild(el('span', { class: cls, title: t.bonus ? 'Gipfelaufgabe' : 'Aufgabe ' + (i + 1) }));
+    });
+    $('play-points').textContent = F(save.points) + ' Punkte';
+  }
+
+  function bubble(kind, text, list) {
+    var b = $('bubble');
+    b.className = 'bubble' + (kind ? ' ' + kind : '');
+    b.replaceChildren(el('span', { text: text }));
+    if (list && list.length) b.appendChild(el('ol', null, list.map(function (s) { return el('li', { text: s }); })));
+  }
+
+  function isPack(t) { return t.kind === 'km' || t.kind === 'rat'; }
+
+  function showTask() {
+    var t = G.tasks[G.idx];
+    G.task = t; G.tries = 0; G.hintUsed = false; G.phase = t.sach ? 'sach' : 'work'; G.widget = null;
+    var label = t.bonus ? 'Gipfelaufgabe · doppelte Punkte' : 'Aufgabe ' + (G.idx + 1) + ' von 5';
+    if (t.sach) label += ' · Sachaufgabe';
+    else if (isPack(t)) label += ' · Päckchen';
+    $('play-kicker').textContent = label;
+    $('answer-box').hidden = true;
+    $('hint-visual').hidden = true;
+    $('work').replaceChildren();
+    $('check-btn').textContent = 'Prüfen';
+    $('hint-btn').disabled = false;
+    setMascot('play-mascot', 'think');
+    dots();
+    var sb = $('sach-box');
+    if (t.sach) {
+      $('play-title').textContent = 'Lies genau.';
+      sb.hidden = false;
+      var opts = el('div', { class: 'opt-row' });
+      t.sach.options.forEach(function (o) {
+        var b = el('button', { type: 'button', class: 'opt', text: o.label, onclick: function () { chooseCalc(o, b, opts); } });
+        opts.appendChild(b);
+      });
+      sb.replaceChildren(el('p', { text: t.sach.text }), el('p', { class: 'q', text: 'Welche Rechnung passt?' }), opts);
+      bubble('', 'Lies die Sachaufgabe und tippe auf die passende Rechnung.');
+    } else {
+      sb.hidden = true;
+      buildWork();
+    }
+    renderPad();
+  }
+
+  function chooseCalc(o, b, opts) {
+    if (G.phase !== 'sach') return;
+    if (!o.correct) {
+      b.classList.remove('wrong'); void b.offsetWidth; b.classList.add('wrong');
+      G.hintUsed = true;
+      bubble('oops', 'Das passt nicht. ' + SIGNAL[G.world === 'rat' ? 'rat' + G.op : G.op]);
+      return;
+    }
+    b.classList.add('right');
+    Array.prototype.forEach.call(opts.children, function (x) { x.disabled = true; });
+    G.phase = 'work';
+    buildWork();
+  }
+
+  function buildWork() {
+    var t = G.task;
+    if (isPack(t)) {
+      $('play-title').textContent = t.sach ? t.rows[0].text.replace(' =', '') + ' = ?' : (t.kind === 'rat' ? 'Rechne mit negativen Zahlen.' : 'Rechne im Kopf.');
+      G.widget = new RG.StepsWidget(RG.buildPack(t));
+    } else {
+      $('play-title').textContent = RG.title(t) + ' = ?';
+      if (t.kind === 'div') G.widget = new RG.DivWidget(t, G.stufe);
+      else {
+        var spec = RG.buildWork(t, G.stufe);
+        G.widget = spec.type === 'combo' ? new RG.ComboWidget(spec) : new RG.GridWidget(spec);
+      }
+    }
+    $('work').replaceChildren(G.widget.el);
+    var extra = isPack(t) && G.world === 'dez' ? ' Für das Komma gibt es die Taste „,“.' : (G.world === 'rat' ? ' Für ein negatives Ergebnis tippst du die Taste „−“.' : '');
+    bubble('', (t.sach ? 'Richtig gewählt! ' : '') + G.widget.intro + extra);
+  }
+
+  function renderPad() {
+    var pad = $('pad');
+    pad.replaceChildren();
+    var special = G.world === 'rat' ? '-' : ',';
+    var keys = ['7', '8', '9', 'back', '4', '5', '6', 'left', '1', '2', '3', 'right', '0', special, 'up', 'down'];
+    var label = { back: '⌫', left: '◀', right: '▶', up: '▲', down: '▼', '-': '−', ',': ',' };
+    var aria = { back: 'Löschen', left: 'Nach links', right: 'Nach rechts', up: 'Nach oben', down: 'Nach unten', '-': 'Minuszeichen', ',': 'Komma' };
+    keys.forEach(function (k) {
+      var isDigit = /\d/.test(k) || k === ',' || k === '-';
+      pad.appendChild(el('button', {
+        type: 'button', class: 'key' + (isDigit ? '' : ' fn'), text: label[k] || k,
+        'aria-label': aria[k] || k, onclick: function () { press(k); }
+      }));
+    });
+  }
+
+  function press(k) {
+    if (!G.widget || G.phase !== 'work') {
+      if (G.phase === 'sach') bubble('tip', 'Wähle zuerst oben die passende Rechnung.');
+      return;
+    }
+    if (/^\d$/.test(k) || k === ',' || k === '-') G.widget.type(k);
+    else if (k === 'back') G.widget.back();
+    else G.widget.move(k);
+  }
+
+  function onCheck() {
+    if (G.phase === 'solved') { next(); return; }
+    if (G.phase === 'sach') { bubble('tip', 'Wähle zuerst die passende Rechnung.'); return; }
+    var w = G.widget;
+    if (w.guided) {
+      var r = w.submit();
+      if (r.state === 'empty') { bubble('tip', r.msg); return; }
+      if (r.state === 'retry') { bubble('oops', r.msg); setMascot('play-mascot', 'think'); return; }
+      if (r.state === 'next') { bubble(r.wrong ? 'oops' : 'good', r.msg); setMascot('play-mascot', r.wrong ? 'think' : 'happy'); return; }
+      solved(r.ok ? 'first' : 'second');
+      return;
+    }
+    var res = w.check();
+    if (res.ok) { solved(G.tries === 0 ? 'first' : 'second'); return; }
+    G.tries++;
+    if (G.tries >= 2) { w.reveal(); solved('shown'); return; }
+    setMascot('play-mascot', 'think');
+    bubble('oops', res.msg + ' Du hast noch einen Versuch. Brauchst du einen Tipp?');
+  }
+
+  function solved(how) {
+    var t = G.task;
+    G.phase = 'solved';
+    if (G.widget.lock) G.widget.lock();
+    var pts = how === 'first' ? (G.hintUsed ? 6 : 10) : how === 'second' ? 5 : 0;
+    if (t.bonus) pts *= 2;
+    G.streak = how === 'first' ? G.streak + 1 : 0;
+    if (how === 'first' && G.streak >= 3) pts += 2;
+    G.results[G.idx] = how === 'first' ? 'ok' : 'meh';
+    save.points += pts; G.roundPoints += pts;
+    persist();
+    if (how === 'shown') {
+      setMascot('play-mascot', 'think');
+      bubble('tip', 'Schau dir die Lösung in Rot an. So geht es:', G.widget.steps ? G.widget.steps() : []);
+    } else if (how === 'first') {
+      setMascot('play-mascot', 'happy', true);
+      bubble('good', RG.pick(PRAISE) + ' +' + pts + ' Punkte' + (G.streak >= 3 ? ' · Serie: ' + G.streak + ' richtig hintereinander' : '') + '.');
+      confetti();
+    } else {
+      setMascot('play-mascot', 'happy', true);
+      bubble('good', 'Geschafft! +' + pts + ' Punkte. Beim nächsten Mal klappt es auf Anhieb.');
+    }
+    if (t.sach) {
+      var ab = $('answer-box');
+      ab.hidden = false;
+      ab.replaceChildren(el('b', { text: 'Antwort: ' }), document.createTextNode(t.sach.answer));
+    }
+    $('check-btn').textContent = G.idx < 4 ? 'Nächste Aufgabe' : 'Runde beenden';
+    $('hint-btn').disabled = true;
+    dots();
+  }
+
+  function next() { G.idx++; if (G.idx >= 5) endRound(); else showTask(); }
+
+  function onHint() {
+    if (G.phase === 'sach') { bubble('tip', SIGNAL[G.world === 'rat' ? 'rat' + G.op : G.op]); G.hintUsed = true; return; }
+    if (G.phase !== 'work' || !G.widget) return;
+    G.hintUsed = true;
+    bubble('tip', 'Tipp: ' + G.widget.hint());
+    if (G.task.kind === 'rat') {
+      var idx = Math.max(0, G.widget.order.indexOf(G.widget.sel)), r = G.task.rows[idx] || G.task.rows[0];
+      var hv = $('hint-visual');
+      hv.hidden = false;
+      hv.innerHTML = '<p>Zahlenstrahl für ' + r.text.replace(' =', '') + '</p>' + numberLine(r);
+    }
+  }
+
+  function endRound() {
+    var p = path(pathId());
+    var good = G.results.filter(function (r) { return r === 'ok'; }).length;
+    var stars = good >= 5 ? 3 : good >= 4 ? 2 : good >= 2 ? 1 : 0;
+    var lvl = G.level, title, text;
+    p.stars[lvl - 1] = Math.max(p.stars[lvl - 1] || 0, stars);
+    if (good >= 4) {
+      if (!p.done && p.level < 5) { p.level++; title = 'Neue Hütte erreicht!'; text = good + ' von 5 Aufgaben auf Anhieb richtig. Ab jetzt geht es auf Hütte ' + p.level + ' weiter, dort wird es schwerer.'; }
+      else if (!p.done) { p.done = true; title = 'Gipfel erreicht!'; text = 'Du hast alle 5 Hütten geschafft. Du kannst hier weiter üben und Punkte sammeln.'; }
+      else { title = 'Gipfelrunde geschafft!'; text = good + ' von 5 Aufgaben auf Anhieb richtig.'; }
+      confetti();
+    } else {
+      title = good >= 2 ? 'Gut gekämpft!' : 'Weiter üben!';
+      text = good + ' von 5 Aufgaben auf Anhieb richtig. Ab 4 richtigen geht es zur nächsten Hütte. Probier es gleich noch einmal!';
+    }
+    persist();
+    $('done-title').textContent = title;
+    $('done-text').textContent = text + ' In dieser Runde: +' + G.roundPoints + ' Punkte.';
+    $('done-stars').innerHTML = star(stars >= 1, 56) + star(stars >= 2, 56) + star(stars >= 3, 56);
+    $('done-trail').replaceChildren(trail(pathId()));
+    setMascot('done-mascot', good >= 4 ? 'wow' : 'happy', true);
+    show('done');
+  }
+
+  /* ---------- Konfetti ---------- */
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function confetti() {
+    if (reduce) return;
+    var cv = $('confetti'), ctx = cv.getContext && cv.getContext('2d');
+    if (!ctx) return;
+    cv.width = window.innerWidth; cv.height = window.innerHeight;
+    var css = getComputedStyle(document.documentElement);
+    var colors = ['--add', '--sub', '--mul', '--div', '--sun', '--ratadd', '--ratsub'].map(function (v) { return css.getPropertyValue(v).trim() || '#f2ad00'; });
+    var parts = [];
+    for (var i = 0; i < 90; i++) parts.push({ x: cv.width / 2 + (Math.random() - .5) * 200, y: cv.height * .35, vx: (Math.random() - .5) * 12, vy: -Math.random() * 12 - 4, s: 5 + Math.random() * 6, c: colors[i % colors.length], r: Math.random() * 6 });
+    var start = performance.now();
+    (function frame(now) {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      parts.forEach(function (p) { p.vy += .4; p.x += p.vx; p.y += p.vy; p.r += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); });
+      if (now - start < 1400) requestAnimationFrame(frame); else ctx.clearRect(0, 0, cv.width, cv.height);
+    })(start);
+  }
+
+  /* ---------- Ereignisse ---------- */
+  document.querySelectorAll('.back-btn[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { if (b.getAttribute('data-go') === 'home') renderHome(); else renderMode(); });
+  });
+  $('play-back').addEventListener('click', renderStufe);
+  $('check-btn').addEventListener('click', onCheck);
+  $('hint-btn').addEventListener('click', onHint);
+  $('again-btn').addEventListener('click', startRound);
+  $('to-stufe-btn').addEventListener('click', renderStufe);
+  $('to-home-btn').addEventListener('click', renderHome);
+  $('reset-btn').addEventListener('click', function () { $('reset-confirm').hidden = false; });
+  $('reset-no').addEventListener('click', function () { $('reset-confirm').hidden = true; });
+  $('reset-yes').addEventListener('click', function () { save = { points: 0, paths: {} }; RG.store.clear(); $('reset-confirm').hidden = true; renderHome(); });
+
+  document.addEventListener('keydown', function (e) {
+    if ($('screen-play').hidden || e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key, map = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down', Backspace: 'back', Delete: 'back', ',': ',', '.': ',', '-': '-' };
+    if (k === 'Enter') {
+      if (e.target && e.target.tagName === 'BUTTON' && e.target.id !== 'check-btn' && G.phase !== 'work') return;
+      e.preventDefault();
+      if (G.phase === 'work' && G.widget && G.widget.nextEmpty && G.widget.nextEmpty()) return;
+      onCheck();
+      return;
+    }
+    if (/^\d$/.test(k)) { e.preventDefault(); press(k); return; }
+    if (map[k]) { e.preventDefault(); press(map[k]); }
+  });
+
+  renderHome();
+})(window.RG);
+
+</script>
+</body>
+</html>

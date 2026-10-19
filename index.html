@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rechen-Gipfel 6</title>
+<meta name="description" content="Digitale Lernwelt für die 6. Klasse der Mittelschule in Bayern: schriftlich rechnen und Kopfrechnen mit Dezimalzahlen, Addieren und Subtrahieren mit rationalen Zahlen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- Startseite: Rechenart wählen -->
+  <section id="screen-home" class="screen" aria-labelledby="home-title">
+    <header class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Dezimalzahlen und rationale Zahlen · 6. Klasse</p>
+        <h1 id="home-title">Rechen-Gipfel 6</h1>
+        <p class="lead">Wähle einen Berg und steig von Hütte zu Hütte bis zum Gipfel. Mit jeder geschafften Runde werden die Aufgaben schwerer.</p>
+      </div>
+      <div class="hero-side">
+        <div class="mascot" id="home-mascot" aria-hidden="true"></div>
+        <div class="score-pill" id="home-points" aria-live="polite">0 Punkte</div>
+      </div>
+    </header>
+    <h2 class="pick-title">1. Was möchtest du üben?</h2>
+    <h3 class="world-title">Dezimalzahlen</h3>
+    <div class="op-grid" id="op-grid"></div>
+    <h3 class="world-title">Rationale Zahlen</h3>
+    <p class="world-note">Rechnen mit negativen Zahlen, zum Beispiel −8 + 5 oder −13 − 3.</p>
+    <div class="op-grid two" id="op-grid-rat"></div>
+    <footer class="home-foot">
+      <button type="button" class="link-btn" id="reset-btn">Fortschritt löschen</button>
+      <div id="reset-confirm" class="reset-confirm" hidden>
+        <span>Wirklich alle Hütten und Punkte löschen?</span>
+        <button type="button" class="btn small danger" id="reset-yes">Ja, löschen</button>
+        <button type="button" class="btn small ghost" id="reset-no">Abbrechen</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- Verfahren wählen -->
+  <section id="screen-mode" class="screen" hidden aria-labelledby="mode-title">
+    <nav class="crumbs"><button type="button" class="back-btn" data-go="home">← Zurück</button><span id="mode-crumb"></span></nav>
+    <h2 class="pick-title" id="mode-title">2. Wie möchtest du rechnen?</h2>
+    <div class="choice-grid" id="mode-grid"></div>
+  </section>
+
+  <!-- Stufe wählen -->
+  <section id="screen-stufe" class="screen" hidden aria-labelledby="stufe-title">
+    <nav class="crumbs"><button type="button" class="back-btn" data-go="mode">← Zurück</button><span id="stufe-crumb"></span></nav>
+    <h2 class="pick-title" id="stufe-title">3. Welche Stufe?</h2>
+    <div class="choice-grid" id="stufe-grid"></div>
+  </section>
+
+  <!-- Üben -->
+  <section id="screen-play" class="screen" hidden aria-labelledby="play-title">
+    <div class="play-bar">
+      <button type="button" class="back-btn" id="play-back">← Stufen</button>
+      <div class="play-info">
+        <span class="badge" id="play-path"></span>
+        <span class="badge soft" id="play-level"></span>
+      </div>
+      <div class="play-score" id="play-points" aria-live="polite"></div>
+    </div>
+    <div class="dots" id="play-dots" aria-label="Fortschritt in dieser Runde"></div>
+
+    <div class="play-main">
+      <div class="task-card">
+        <p class="task-kicker" id="play-kicker"></p>
+        <h2 class="task-title" id="play-title"></h2>
+        <div id="sach-box" class="sach" hidden></div>
+        <div id="work" class="work"></div>
+        <div id="hint-visual" class="hint-visual" hidden></div>
+        <div id="answer-box" class="answer-box" hidden></div>
+      </div>
+
+      <aside class="side">
+        <div class="coach">
+          <div class="mascot small" id="play-mascot" aria-hidden="true"></div>
+          <div class="bubble" id="bubble" aria-live="polite"></div>
+        </div>
+        <div class="pad" id="pad" aria-label="Zahlenfeld"></div>
+        <div class="actions">
+          <button type="button" class="btn ghost" id="hint-btn">Tipp</button>
+          <button type="button" class="btn primary" id="check-btn">Prüfen</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Rundenende -->
+  <section id="screen-done" class="screen" hidden aria-labelledby="done-title">
+    <div class="done-card">
+      <div class="mascot big" id="done-mascot" aria-hidden="true"></div>
+      <h2 id="done-title"></h2>
+      <div class="done-stars" id="done-stars"></div>
+      <p id="done-text" class="lead"></p>
+      <div class="done-trail" id="done-trail"></div>
+      <div class="done-actions">
+        <button type="button" class="btn primary" id="again-btn">Nächste Runde</button>
+        <button type="button" class="btn ghost" id="to-stufe-btn">Andere Stufe</button>
+        <button type="button" class="btn ghost" id="to-home-btn">Andere Rechenart</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<noscript><p class="noscript">Bitte JavaScript einschalten, damit die Lernwelt funktioniert.</p></noscript>
+<script src="js/util.js"></script>
+<script src="js/generators.js"></script>
+<script src="js/specs.js"></script>
+<script src="js/widgets.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
