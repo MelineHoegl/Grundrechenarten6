@@ -299,6 +299,18 @@ h1 { font-size: clamp(44px, 8vw, 76px); font-weight: 800; letter-spacing: -.01em
 .hint-visual svg { display: block; width: 100%; min-width: 480px; height: auto; }
 .hint-visual p { margin: 0 4px 4px; font-size: 15px; font-weight: 700; }
 
+/* Extra: Sachaufgaben-Rallye */
+.extra-card { display: flex; gap: 14px; align-items: center; background: var(--card); color: var(--fg); text-decoration: none;
+  border: 3px dashed var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); transition: transform .15s ease, border-color .15s ease; }
+.extra-card:hover { transform: translateY(-3px); border-color: var(--muted); }
+.extra-card:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.extra-flag { width: 46px; height: 46px; flex: none; color: var(--fg); }
+.extra-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.extra-kicker { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.extra-name { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; }
+.extra-sub { color: var(--muted); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .extra-card { transition: none; } }
+
 </style>
 </head>
 <body>
@@ -323,6 +335,11 @@ h1 { font-size: clamp(44px, 8vw, 76px); font-weight: 800; letter-spacing: -.01em
     <h3 class="world-title">Rationale Zahlen</h3>
     <p class="world-note">Rechnen mit negativen Zahlen, zum Beispiel −8 + 5 oder −13 − 3.</p>
     <div class="op-grid two" id="op-grid-rat"></div>
+    <a class="extra-card" href="sachaufgaben-rallye.html">
+      <svg class="extra-flag" viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="4" width="3" height="33" rx="1.5" fill="currentColor"/><path d="M10 6h22l-5 7 5 7H10z" fill="currentColor" opacity=".55"/></svg>
+      <span class="extra-text"><span class="extra-kicker">Extra · 5. und 6. Klasse</span><span class="extra-name">Sachaufgaben-Rallye</span>
+      <span class="extra-sub">Sechs Geschichten: verstehen, Rechenweg wählen, rechnen und den richtigen Antwortsatz finden.</span></span>
+    </a>
     <footer class="home-foot">
       <button type="button" class="link-btn" id="reset-btn">Fortschritt löschen</button>
       <div id="reset-confirm" class="reset-confirm" hidden>

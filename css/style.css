@@ -287,3 +287,15 @@ h1 { font-size: clamp(44px, 8vw, 76px); font-weight: 800; letter-spacing: -.01em
 .hint-visual { overflow-x: auto; background: var(--sun-soft); border-radius: 14px; padding: 8px; }
 .hint-visual svg { display: block; width: 100%; min-width: 480px; height: auto; }
 .hint-visual p { margin: 0 4px 4px; font-size: 15px; font-weight: 700; }
+
+/* Extra: Sachaufgaben-Rallye */
+.extra-card { display: flex; gap: 14px; align-items: center; background: var(--card); color: var(--fg); text-decoration: none;
+  border: 3px dashed var(--line); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); transition: transform .15s ease, border-color .15s ease; }
+.extra-card:hover { transform: translateY(-3px); border-color: var(--muted); }
+.extra-card:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.extra-flag { width: 46px; height: 46px; flex: none; color: var(--fg); }
+.extra-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.extra-kicker { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.extra-name { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; }
+.extra-sub { color: var(--muted); font-size: 15px; }
+@media (prefers-reduced-motion: reduce) { .extra-card { transition: none; } }

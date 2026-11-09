@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sachaufgaben-Rallye</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Andika:wght@400;700&display=swap">
+<meta name="lernwelt-home" content="index.html">
+<meta name="lernwelt-name" content="Rechen-Gipfel 6">
+<meta name="lernwelt-klasse" content="6">
+<meta name="description" content="Sachaufgaben-Rallye: sechs Sachaufgaben, 5. Klasse mit ganzen Zahlen, 6. Klasse mit Kommazahlen.">
+<style>
+/* Layout: eine Spalte wie eine Heftseite auf Karopapier; Stationen als Rallye-Weg, Aufgabe als Schritt-für-Schritt-Karte */
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  --paper: #fbfcf7;
+  --grid: rgba(56, 110, 190, .12);
+  --card: #ffffff;
+  --ink: #1d2a44;
+  --muted: #5a6680;
+  --line: #d6deea;
+  --blue: #1f56c8;
+  --red: #c93d33;
+  --red-bg: #fdeceb;
+  --green: #1f7f52;
+  --green-bg: #e6f5ec;
+  --gold: #e3a008;
+  --g5: #2e7fc1;
+  --g6: #138a73;
+  --accent: var(--g5);
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Andika", "Segoe UI", system-ui, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #131925; --grid: rgba(120, 160, 230, .09); --card: #1b2333; --ink: #e8edf7; --muted: #9aa6bd;
+    --line: #2d3a52; --blue: #86aaff; --red: #ff8277; --red-bg: #3a2226; --green: #5fd39a; --green-bg: #1d3329;
+    --gold: #f5c04a; --g5: #5aa8ec; --g6: #3cc4a7; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #131925; --grid: rgba(120, 160, 230, .09); --card: #1b2333; --ink: #e8edf7; --muted: #9aa6bd;
+  --line: #2d3a52; --blue: #86aaff; --red: #ff8277; --red-bg: #3a2226; --green: #5fd39a; --green-bg: #1d3329;
+  --gold: #f5c04a; --g5: #5aa8ec; --g6: #3cc4a7; color-scheme: dark;
+}
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+body.g6 { --accent: var(--g6); }
+main { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.15; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 800; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.2rem; font-weight: 700; }
+p { margin: 0; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+
+/* Kopf */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.flag { width: 38px; height: 38px; flex: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-weight: 700;
+  background: var(--card); border: 1.5px solid var(--line); font-size: .92rem; }
+a.chip { color: var(--ink); text-decoration: none; }
+.chip.grade { background: var(--accent); color: #fff; border-color: transparent; }
+.stars-count { color: var(--gold); }
+.linkbtn { background: none; border: none; color: var(--accent); font-weight: 700; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Start */
+.hero { display: grid; gap: 14px; padding: 8px 0 4px; }
+.hero p { max-width: 58ch; font-size: 1.05rem; }
+.grade-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.grade-btn { text-align: left; border: 2px solid var(--line); background: var(--card); border-radius: var(--radius); padding: 18px;
+  display: grid; gap: 6px; color: var(--ink); transition: transform .15s, border-color .15s; }
+.grade-btn:hover { transform: translateY(-2px); }
+.grade-btn .big { font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; line-height: 1; }
+.grade-btn.b5 .big { color: var(--g5); } .grade-btn.b6 .big { color: var(--g6); }
+.grade-btn.b5:hover { border-color: var(--g5); } .grade-btn.b6:hover { border-color: var(--g6); }
+.how { background: var(--card); border: 1.5px dashed var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.how ol { margin: 6px 0 0; padding-left: 1.3em; display: grid; gap: 2px; }
+
+/* Karte der Stationen */
+.trail { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; counter-reset: st; }
+.station { position: relative; text-align: left; background: var(--card); border: 2px solid var(--line); border-radius: var(--radius);
+  padding: 14px 14px 12px; display: grid; gap: 4px; color: var(--ink); min-width: 0; }
+.station:hover { border-color: var(--accent); }
+.station .num { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--accent); color: #fff; }
+.station.done { border-color: var(--green); }
+.station.done .num { background: var(--green); }
+.station .row { display: flex; align-items: center; gap: 10px; }
+.station .stars { font-size: .95rem; letter-spacing: 1px; color: var(--gold); min-height: 1.4em; }
+.station .ops { font-size: .85rem; color: var(--muted); }
+
+/* Aufgabe */
+.story { background: var(--card); border: 2px solid var(--line); border-radius: var(--radius); padding: 18px 18px 16px; display: grid; gap: 10px; }
+.story .text { font-size: 1.18rem; line-height: 1.6; }
+.story .text b { color: var(--accent); }
+.together { font-size: .9rem; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+.phases { display: grid; gap: 12px; }
+.phase { background: var(--card); border: 2px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
+.phase.active { border-color: var(--accent); box-shadow: 0 6px 0 -2px color-mix(in srgb, var(--accent) 25%, transparent); }
+.phase.locked { opacity: .5; }
+.phase-head { display: flex; align-items: center; gap: 10px; }
+.phase-head .pn { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700;
+  background: var(--paper); border: 2px solid var(--line); font-size: .9rem; flex: none; }
+.phase.active .pn { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase.ok .pn { background: var(--green); border-color: var(--green); color: #fff; }
+.phase-head h3 { flex: 1; }
+.phase-head .star { color: var(--gold); font-size: 1.1rem; }
+.choices { display: grid; gap: 8px; }
+.choice { text-align: left; padding: 11px 14px; border-radius: 10px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); line-height: 1.4; }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice.right { border-color: var(--green); background: var(--green-bg); }
+.choice.wrong { border-color: var(--red); background: var(--red-bg); text-decoration: line-through; text-decoration-color: var(--red); }
+.choice:disabled { cursor: default; }
+.summary { font-weight: 700; }
+.summary.ok { color: var(--green); }
+
+/* Rechnung im Heft-Look */
+.heft { border-radius: 10px; border: 1.5px solid var(--line); padding: 10px 14px;
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 18px 18px; display: grid; gap: 4px; font-variant-numeric: tabular-nums; }
+.heft .ln { font-size: 1.1rem; color: var(--blue); font-weight: 700; }
+.heft .lab { color: var(--muted); font-weight: 400; font-size: .9rem; }
+.calc { display: grid; gap: 8px; }
+.calc label { font-weight: 700; }
+.inrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inrow input { font: inherit; font-size: 1.2rem; width: 9.5em; max-width: 100%; padding: 8px 12px; border-radius: 10px;
+  border: 2px solid var(--line); background: var(--paper); color: var(--ink); font-variant-numeric: tabular-nums; }
+.inrow input.bad { border-color: var(--red); }
+.unit { font-weight: 700; font-size: 1.1rem; }
+.btn { border: none; border-radius: 10px; padding: 10px 18px; font-weight: 700; background: var(--accent); color: #fff; }
+.btn.ghost { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+.btn:disabled { opacity: .5; cursor: default; }
+.fb { font-weight: 700; min-height: 1.5em; }
+.fb.no { color: var(--red); }
+.fb.yes { color: var(--green); }
+.tip { font-size: .95rem; background: var(--paper); border-left: 4px solid var(--gold); padding: 6px 10px; border-radius: 4px; }
+.navrow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Ziel */
+.finish { background: var(--card); border: 2px solid var(--accent); border-radius: var(--radius); padding: 22px; display: grid; gap: 14px; text-align: center; }
+.finish .bigstars { font-family: var(--font-display); font-size: 3rem; font-weight: 800; color: var(--gold); line-height: 1; }
+.finish table { width: 100%; border-collapse: collapse; text-align: left; font-variant-numeric: tabular-nums; }
+.finish td { padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.finish td:last-child { text-align: right; color: var(--gold); white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+
+@keyframes pop { 0% { transform: scale(.6); opacity: 0 } 70% { transform: scale(1.15) } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop .35s ease-out; display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .pop { animation: none; } .grade-btn { transition: none; } }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+
+<script>
+// ---------------- Daten: gleiche Geschichten, 5 = ganze Zahlen, 6 = Kommazahlen ----------------
+const TASKS = [
+  {
+    title: 'Einkauf fürs Klassenfest', ops: '· · + −',
+    text: {
+      5: 'Die Klasse kauft für das Klassenfest <b>6 Kisten</b> Apfelsaft zu je <b>14 €</b> und <b>3 Pakete</b> Becher zu je <b>4 €</b>. Sie bezahlt mit einem <b>100-€-Schein</b>. Wie viel Wechselgeld bekommt sie?',
+      6: 'Die Klasse kauft für das Klassenfest <b>6 Kisten</b> Apfelsaft zu je <b>13,49 €</b> und <b>3 Pakete</b> Becher zu je <b>2,85 €</b>. Sie bezahlt mit einem <b>100-€-Schein</b>. Wie viel Wechselgeld bekommt sie?'
+    },
+    gesucht: ['Wie viel Wechselgeld die Klasse bekommt', 'Wie viel der Apfelsaft kostet', 'Wie viele Becher die Klasse kauft'],
+    plan: ['Saft berechnen (·) → Becher berechnen (·) → beides addieren (+) → von 100 € abziehen (−)',
+           'Saft und Becher addieren (+) → von 100 € abziehen (−)',
+           '100 € durch 6 teilen (:) → Becher abziehen (−)'],
+    steps: {
+      5: [['Wie viel kostet der Apfelsaft?', '14 € · 6', 84, '€'], ['Wie viel kosten die Becher?', '4 € · 3', 12, '€'],
+          ['Wie viel kostet alles zusammen?', '84 € + 12 €', 96, '€'], ['Wie viel Wechselgeld gibt es?', '100 € − 96 €', 4, '€']],
+      6: [['Wie viel kostet der Apfelsaft?', '13,49 € · 6', 80.94, '€'], ['Wie viel kosten die Becher?', '2,85 € · 3', 8.55, '€'],
+          ['Wie viel kostet alles zusammen?', '80,94 € + 8,55 €', 89.49, '€'], ['Wie viel Wechselgeld gibt es?', '100,00 € − 89,49 €', 10.51, '€']]
+    },
+    answer: {
+      5: ['Die Klasse bekommt 4 € Wechselgeld.', 'Die Klasse bekommt 96 € Wechselgeld.', 'Der Einkauf kostet 4 €.'],
+      6: ['Die Klasse bekommt 10,51 € Wechselgeld.', 'Die Klasse bekommt 89,49 € Wechselgeld.', 'Der Einkauf kostet 10,51 €.']
+    }
+  },
+  {
+    title: 'Wandertag', ops: '+ −',
+    text: {
+      5: 'Die Klasse will am Wandertag <b>12 500 m</b> wandern. Am Vormittag schafft sie <b>4 875 m</b>, am Nachmittag <b>3 960 m</b>. Wie viele Meter fehlen noch bis zum Ziel?',
+      6: 'Die Klasse will am Wandertag <b>12,5 km</b> wandern. Am Vormittag schafft sie <b>4,875 km</b>, am Nachmittag <b>3,96 km</b>. Wie viele Kilometer fehlen noch bis zum Ziel?'
+    },
+    gesucht: ['Wie weit es noch bis zum Ziel ist', 'Wie weit die Klasse am Vormittag wandert', 'Wie lange die Wanderung dauert'],
+    plan: ['Vormittag und Nachmittag addieren (+) → vom Ziel abziehen (−)',
+           'Vom Ziel nur den Vormittag abziehen (−) → fertig',
+           'Vormittag mal Nachmittag rechnen (·) → vom Ziel abziehen (−)'],
+    steps: {
+      5: [['Wie weit ist die Klasse schon gewandert?', '4 875 m + 3 960 m', 8835, 'm'], ['Wie viele Meter fehlen noch?', '12 500 m − 8 835 m', 3665, 'm']],
+      6: [['Wie weit ist die Klasse schon gewandert?', '4,875 km + 3,96 km', 8.835, 'km'], ['Wie viele Kilometer fehlen noch?', '12,5 km − 8,835 km', 3.665, 'km']]
+    },
+    answer: {
+      5: ['Es fehlen noch 3 665 m bis zum Ziel.', 'Es fehlen noch 8 835 m bis zum Ziel.', 'Die Klasse ist schon am Ziel.'],
+      6: ['Es fehlen noch 3,665 km bis zum Ziel.', 'Es fehlen noch 8,835 km bis zum Ziel.', 'Die Klasse ist schon am Ziel.']
+    }
+  },
+  {
+    title: 'Ausflug mit Freunden', ops: '+ :',
+    text: {
+      5: '<b>Vier Freunde</b> machen einen Ausflug. Die Zugfahrt kostet zusammen <b>96 €</b>, der Eintritt in den Freizeitpark <b>76 €</b>. Sie teilen sich alle Kosten gerecht. Wie viel muss jeder bezahlen?',
+      6: '<b>Vier Freunde</b> machen einen Ausflug. Die Zugfahrt kostet zusammen <b>96,40 €</b>, der Eintritt in den Freizeitpark <b>75,80 €</b>. Sie teilen sich alle Kosten gerecht. Wie viel muss jeder bezahlen?'
+    },
+    gesucht: ['Wie viel jeder Freund bezahlen muss', 'Wie viel der Ausflug insgesamt kostet', 'Wie viel die Zugfahrt für einen kostet'],
+    plan: ['Zug und Eintritt addieren (+) → durch 4 teilen (:)',
+           'Nur die Zugfahrt durch 4 teilen (:) → fertig',
+           'Zug und Eintritt addieren (+) → mal 4 rechnen (·)'],
+    steps: {
+      5: [['Wie viel kostet der Ausflug insgesamt?', '96 € + 76 €', 172, '€'], ['Wie viel muss jeder bezahlen?', '172 € : 4', 43, '€']],
+      6: [['Wie viel kostet der Ausflug insgesamt?', '96,40 € + 75,80 €', 172.2, '€'], ['Wie viel muss jeder bezahlen?', '172,20 € : 4', 43.05, '€']]
+    },
+    answer: {
+      5: ['Jeder muss 43 € bezahlen.', 'Jeder muss 172 € bezahlen.', 'Alle zusammen bezahlen 43 €.'],
+      6: ['Jeder muss 43,05 € bezahlen.', 'Jeder muss 172,20 € bezahlen.', 'Alle zusammen bezahlen 43,05 €.']
+    }
+  },
+  {
+    title: 'Stoff für die Theater-AG', ops: '·',
+    text: {
+      5: 'Die Theater-AG braucht Stoff für die Kostüme. Sie kauft <b>45 m</b> Stoff. <b>1 m</b> kostet <b>12 €</b>. Wie viel muss die AG bezahlen?',
+      6: 'Die Theater-AG braucht Stoff für die Kostüme. Sie kauft <b>4,5 m</b> Stoff. <b>1 m</b> kostet <b>12,80 €</b>. Wie viel muss die AG bezahlen?'
+    },
+    gesucht: ['Wie viel die AG für den Stoff bezahlen muss', 'Wie viele Meter Stoff die AG braucht', 'Wie viele Kostüme die AG näht'],
+    plan: ['Preis für 1 m mal Anzahl der Meter (·)',
+           'Preis für 1 m plus Anzahl der Meter (+)',
+           'Preis für 1 m geteilt durch Anzahl der Meter (:)'],
+    steps: {
+      5: [['Wie viel kostet der Stoff?', '12 € · 45', 540, '€']],
+      6: [['Wie viel kostet der Stoff?', '12,80 € · 4,5', 57.6, '€']]
+    },
+    answer: {
+      5: ['Die AG muss 540 € bezahlen.', 'Die AG muss 57 € bezahlen.', 'Die AG kauft 540 m Stoff.'],
+      6: ['Die AG muss 57,60 € bezahlen.', 'Die AG muss 17,30 € bezahlen.', 'Die AG muss 576 € bezahlen.']
+    }
+  },
+  {
+    title: 'Sponsorenlauf', ops: '· · −',
+    text: {
+      5: 'Beim Sponsorenlauf läuft Lisa <b>18 Runden</b>. Ihr Opa zahlt für jede Runde <b>3 €</b>. Tom läuft <b>23 Runden</b>. Seine Tante zahlt für jede Runde <b>2 €</b>. Wer erläuft mehr Geld? Wie viel mehr?',
+      6: 'Beim Sponsorenlauf läuft Lisa <b>18 Runden</b>. Ihr Opa zahlt für jede Runde <b>1,25 €</b>. Tom läuft <b>23 Runden</b>. Seine Tante zahlt für jede Runde <b>0,95 €</b>. Wer erläuft mehr Geld? Wie viel mehr?'
+    },
+    gesucht: ['Wer mehr Geld erläuft und wie viel mehr', 'Wie viele Runden Lisa läuft', 'Wie viel Geld beide zusammen erlaufen'],
+    plan: ['Lisas Geld berechnen (·) → Toms Geld berechnen (·) → Unterschied berechnen (−)',
+           'Die Runden vergleichen (−) → fertig',
+           'Lisas Geld berechnen (·) → Toms Geld berechnen (·) → zusammenrechnen (+)'],
+    steps: {
+      5: [['Wie viel Geld erläuft Lisa?', '3 € · 18', 54, '€'], ['Wie viel Geld erläuft Tom?', '2 € · 23', 46, '€'], ['Wie groß ist der Unterschied?', '54 € − 46 €', 8, '€']],
+      6: [['Wie viel Geld erläuft Lisa?', '1,25 € · 18', 22.5, '€'], ['Wie viel Geld erläuft Tom?', '0,95 € · 23', 21.85, '€'], ['Wie groß ist der Unterschied?', '22,50 € − 21,85 €', 0.65, '€']]
+    },
+    answer: {
+      5: ['Lisa erläuft 8 € mehr als Tom.', 'Tom erläuft 8 € mehr als Lisa.', 'Tom läuft mehr Runden, also erläuft er mehr Geld.'],
+      6: ['Lisa erläuft 0,65 € mehr als Tom.', 'Tom erläuft 0,65 € mehr als Lisa.', 'Tom läuft mehr Runden, also erläuft er mehr Geld.']
+    }
+  },
+  {
+    title: 'Schnur für die Gruppen', ops: '· − :',
+    text: {
+      5: 'Der Hausmeister hat <b>1 000 m</b> Schnur. Er schneidet <b>8 Stücke</b> zu je <b>85 m</b> ab. Den Rest verteilt er gerecht auf <b>5 Gruppen</b>. Wie viele Meter Schnur bekommt jede Gruppe?',
+      6: 'Der Hausmeister hat <b>100 m</b> Schnur. Er schneidet <b>8 Stücke</b> zu je <b>8,45 m</b> ab. Den Rest verteilt er gerecht auf <b>5 Gruppen</b>. Wie viele Meter Schnur bekommt jede Gruppe?'
+    },
+    gesucht: ['Wie viele Meter Schnur jede Gruppe bekommt', 'Wie viele Stücke der Hausmeister abschneidet', 'Wie lang ein abgeschnittenes Stück ist'],
+    plan: ['Abgeschnittene Schnur berechnen (·) → Rest berechnen (−) → Rest auf 5 Gruppen verteilen (:)',
+           'Die ganze Schnur durch 5 teilen (:) → fertig',
+           'Abgeschnittene Schnur berechnen (·) → durch 5 teilen (:)'],
+    steps: {
+      5: [['Wie viel Schnur schneidet er ab?', '85 m · 8', 680, 'm'], ['Wie viel Schnur bleibt übrig?', '1 000 m − 680 m', 320, 'm'], ['Wie viel bekommt jede Gruppe?', '320 m : 5', 64, 'm']],
+      6: [['Wie viel Schnur schneidet er ab?', '8,45 m · 8', 67.6, 'm'], ['Wie viel Schnur bleibt übrig?', '100 m − 67,6 m', 32.4, 'm'], ['Wie viel bekommt jede Gruppe?', '32,4 m : 5', 6.48, 'm']]
+    },
+    answer: {
+      5: ['Jede Gruppe bekommt 64 m Schnur.', 'Jede Gruppe bekommt 320 m Schnur.', 'Jede Gruppe bekommt 200 m Schnur.'],
+      6: ['Jede Gruppe bekommt 6,48 m Schnur.', 'Jede Gruppe bekommt 32,4 m Schnur.', 'Jede Gruppe bekommt 20 m Schnur.']
+    }
+  }
+];
+
+// ---------------- Hilfen ----------------
+const $ = (s, r = document) => r.querySelector(s);
+const STORE = 'sachaufgaben-rallye-v1';
+function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S.saved)); } catch (e) {} }
+
+function fmt(n, grade) {
+  // deutsche Schreibweise; Geldbeträge mit 2 Nachkommastellen in Jgst. 6
+  let s;
+  if (grade === 6 && !Number.isInteger(n) && String(n).split('.')[1].length === 1 && S.cur && S.cur.unit === '€') s = n.toFixed(2);
+  else s = String(Math.round(n * 1000) / 1000);
+  let [ip, fp] = s.split('.');
+  ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return fp ? ip + ',' + fp : ip;
+}
+function parseInput(raw, grade) {
+  let s = String(raw).trim().replace(/[\s  ]/g, '').replace(/(€|km|m)$/i, '');
+  if (grade === 5) s = s.replace(/\.(?=\d{3}(\D|$))/g, '');   // 8.835 → 8835 (Tausenderpunkt)
+  s = s.replace(',', '.');
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN;
+  return Number(s);
+}
+function shuffle(arr, seed) {
+  const a = arr.map((v, i) => ({ v, i }));
+  let x = seed * 9301 + 49297;
+  for (let i = a.length - 1; i > 0; i--) { x = (x * 9301 + 49297) % 233280; const j = Math.floor(x / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function maxStars(t, g) { return 3 + t.steps[g].length; }
+
+// ---------------- Zustand ----------------
+const S = { grade: null, view: 'start', saved: load(), task: null, cur: null };
+function prog(g) { S.saved[g] = S.saved[g] || {}; return S.saved[g]; }
+
+function setGrade(g) {
+  S.grade = g;
+  document.body.classList.toggle('g6', g === 6);
+  S.view = 'map'; render();
+}
+
+// ---------------- Ansichten ----------------
+function render() {
+  const app = $('#app');
+  if (S.view === 'start') app.innerHTML = viewStart();
+  else if (S.view === 'map') app.innerHTML = viewMap();
+  else if (S.view === 'task') { app.innerHTML = viewTask(); bindTask(); }
+  else if (S.view === 'finish') app.innerHTML = viewFinish();
+  bindCommon();
+  window.scrollTo({ top: 0 });
+}
+
+const FLAG = `<svg class="flag" viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="4" width="3" height="33" rx="1.5" fill="currentColor" opacity=".75"/>
+<path d="M10 6h22l-5 7 5 7H10z" fill="var(--accent)"/><path d="M14 6h4v4h-4zM22 6h4v4h-4zM18 10h4v4h-4zM26 10h4v4h-4zM14 14h4v4h-4zM22 14h4v4h-4z" fill="var(--card)" opacity=".85"/></svg>`;
+
+function totalStars(g) {
+  return TASKS.reduce((s, t, i) => s + ((prog(g)[i] || {}).stars || 0), 0);
+}
+function totalMax(g) { return TASKS.reduce((s, t) => s + maxStars(t, g), 0); }
+
+const META = n => (document.querySelector(`meta[name="${n}"]`) || {}).content;
+const HOME = META('lernwelt-home'), HOME_NAME = META('lernwelt-name') || 'Lernwelt';
+function header(right = '') {
+  const home = HOME ? `<a class="chip" href="${HOME}">← ${HOME_NAME}</a>` : '';
+  return `<div class="top"><div class="brand">${FLAG}<div><div class="eyebrow">Mathe · Sachaufgaben</div>
+  <h2>Sachaufgaben-Rallye</h2></div></div><div class="inrow">${right}${home}</div></div>`;
+}
+
+function viewStart() {
+  return `${header()}
+  <section class="hero">
+    <h1>Lesen. Verstehen. Rechnen.</h1>
+    <p>Sechs Stationen, sechs Geschichten. Bei jeder Station klärst du zuerst, was gesucht ist, und wählst den richtigen Rechenweg. Dann rechnest du Schritt für Schritt und findest den passenden Antwortsatz.</p>
+  </section>
+  <div class="grade-pick">
+    <button class="grade-btn b5" data-grade="5" id="pick5"><span class="big">5. Klasse</span><span>Ganze Zahlen</span>
+      <span class="muted">${totalStars(5)} von ${totalMax(5)} ★ gesammelt</span></button>
+    <button class="grade-btn b6" data-grade="6" id="pick6"><span class="big">6. Klasse</span><span>Kommazahlen</span>
+      <span class="muted">${totalStars(6)} von ${totalMax(6)} ★ gesammelt</span></button>
+  </div>
+  <div class="how"><b>So geht die Rallye</b>
+    <ol>
+      <li>Lest die Geschichte gemeinsam und besprecht: Worum geht es?</li>
+      <li>Wähle aus, was gesucht ist.</li>
+      <li>Wähle den richtigen Rechenweg.</li>
+      <li>Rechne in deinem Heft und tippe die Ergebnisse ein.</li>
+      <li>Wähle den richtigen Antwortsatz.</li>
+    </ol>
+    <p class="muted" style="margin-top:8px">Klappt ein Schritt beim ersten Versuch, bekommst du einen ★.</p>
+  </div>`;
+}
+
+function viewMap() {
+  const g = S.grade, p = prog(g);
+  const cards = TASKS.map((t, i) => {
+    const r = p[i] || {};
+    const st = r.done ? '★'.repeat(r.stars) + '<span class="muted">' + '☆'.repeat(maxStars(t, g) - r.stars) + '</span>' : '';
+    return `<button class="station ${r.done ? 'done' : ''}" data-open="${i}" id="st${i}">
+      <div class="row"><span class="num">${r.done ? '✓' : i + 1}</span><h3>${t.title}</h3></div>
+      <div class="ops">Rechenzeichen: ${t.ops}</div>
+      <div class="stars" aria-label="${r.stars || 0} Sterne">${st || '<span class="muted">noch offen</span>'}</div>
+    </button>`;
+  }).join('');
+  const allDone = TASKS.every((t, i) => (p[i] || {}).done);
+  return `${header(`<span class="chip grade">${g}. Klasse</span><span class="chip"><span class="stars-count">★</span> ${totalStars(g)} / ${totalMax(g)}</span>`)}
+  <div class="navrow"><button class="linkbtn" data-go="start">← Klasse wechseln</button>
+    ${allDone ? '<button class="btn" data-go="finish">Zum Ziel 🏁</button>' : ''}</div>
+  <div><div class="eyebrow">Deine Stationen</div><p class="muted">Tippe auf eine Station, um zu starten.</p></div>
+  <div class="trail">${cards}</div>`;
+}
+
+function startTask(i) {
+  const t = TASKS[i], g = S.grade;
+  S.task = { i, phase: 0, step: 0, stars: 0, tries: 0, done: [], wrong: {}, gOrder: shuffle(t.gesucht, i + 1), pOrder: shuffle(t.plan, i + 7),
+             aOrder: shuffle(t.answer[g], i + 13), results: [] };
+  S.view = 'task'; render();
+}
+
+function viewTask() {
+  const T = S.task, t = TASKS[T.i], g = S.grade;
+  const steps = t.steps[g];
+  const ph = (n, title, body, summary) => {
+    const cls = T.phase === n ? 'active' : (T.phase > n ? 'ok' : 'locked');
+    const star = T.done[n] === true ? '<span class="star pop">★</span>' : '';
+    return `<section class="phase ${cls}" aria-label="${title}">
+      <div class="phase-head"><span class="pn">${T.phase > n ? '✓' : n + 1}</span><h3>${title}</h3>${star}</div>
+      ${T.phase === n ? body : (T.phase > n ? `<p class="summary ok">${summary}</p>` : '')}</section>`;
+  };
+  const choiceList = (order, key) => order.map(o => {
+    const w = (T.wrong[key] || []).includes(o.i);
+    return `<button class="choice ${w ? 'wrong' : ''}" data-choice="${o.i}" data-key="${key}" ${w ? 'disabled' : ''}>${o.v}</button>`;
+  }).join('');
+
+  // Phase 3: Rechnen
+  let heft = T.results.map((r, k) => `<div class="ln"><span class="lab">${steps[k][0]}</span><br>${steps[k][1]} = ${fmtVal(steps[k][2], steps[k][3])}</div>`).join('');
+  let calcBody = '';
+  if (T.phase === 2) {
+    const s = steps[T.step];
+    S.cur = { unit: s[3] };
+    const tip = T.tries >= 2 ? `<p class="tip"><b>Tipp:</b> Rechne ${s[1]}.</p>` : '';
+    calcBody = `${heft ? `<div class="heft">${heft}</div>` : ''}
+      <form class="calc" id="calcform" autocomplete="off">
+        <label for="ans">${s[0]}</label>
+        <div class="inrow"><input id="ans" inputmode="decimal" aria-describedby="fb" placeholder="Ergebnis"><span class="unit">${s[3]}</span>
+          <button class="btn" type="submit">Prüfen</button></div>
+        <p class="fb ${T.fbClass || ''}" id="fb">${T.fb || ''}</p>${tip}
+      </form>
+      <p class="muted">Rechne schriftlich in deinem Heft. Schritt ${T.step + 1} von ${steps.length}.</p>`;
+  }
+  const finished = T.phase > 3;
+  return `${header(`<span class="chip grade">${g}. Klasse</span><span class="chip"><span class="stars-count">★</span> ${T.stars} / ${maxStars(t, g)}</span>`)}
+  <div class="navrow"><button class="linkbtn" data-go="map">← Alle Stationen</button><span class="muted">Station ${T.i + 1} von ${TASKS.length}</span></div>
+  <article class="story">
+    <div class="eyebrow">Station ${T.i + 1}</div>
+    <h2>${t.title}</h2>
+    <p class="text">${t.text[g]}</p>
+    <p class="together">💬 <span>Erst gemeinsam lesen und besprechen: Worum geht es? Dann allein lösen.</span></p>
+  </article>
+  <div class="phases">
+    ${ph(0, 'Was ist gesucht?', `<div class="choices">${choiceList(T.gOrder, 'g')}</div><p class="fb no">${T.fb || ''}</p>`, t.gesucht[0])}
+    ${ph(1, 'Welcher Rechenweg passt?', `<div class="choices">${choiceList(T.pOrder, 'p')}</div><p class="fb no">${T.fb || ''}</p>`, t.plan[0])}
+    ${ph(2, 'Rechnen', calcBody, `<div class="heft">${heft}</div>`)}
+    ${ph(3, 'Welcher Antwortsatz stimmt?', `<div class="choices">${choiceList(T.aOrder, 'a')}</div><p class="fb no">${T.fb || ''}</p>`, 'A: ' + t.answer[g][0])}
+  </div>
+  ${finished ? `<div class="finish"><div class="bigstars pop">${'★'.repeat(T.stars)}<span class="muted" style="font-size:2rem">${'☆'.repeat(maxStars(t, g) - T.stars)}</span></div>
+     <h2>Station geschafft!</h2><p class="muted">Du hast ${T.stars} von ${maxStars(t, g)} Sternen gesammelt.</p>
+     <div class="navrow" style="justify-content:center">
+       <button class="btn ghost" data-retry="${T.i}">Station wiederholen</button>
+       ${T.i + 1 < TASKS.length ? `<button class="btn" data-open="${T.i + 1}">Nächste Station →</button>` : '<button class="btn" data-go="finish">Zum Ziel 🏁</button>'}
+     </div></div>` : ''}`;
+}
+
+function fmtVal(v, unit) {
+  let s;
+  if (unit === '€' && S.grade === 6) s = v.toFixed(2);
+  else s = String(Math.round(v * 1000) / 1000);
+  let [ip, fp] = s.split('.');
+  ip = ip.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (fp ? ip + ',' + fp : ip) + ' ' + unit;
+}
+
+function bindTask() {
+  const T = S.task, t = TASKS[T.i], g = S.grade;
+  document.querySelectorAll('[data-choice]').forEach(b => b.addEventListener('click', () => {
+    const key = b.dataset.key, idx = +b.dataset.choice;
+    if (idx === 0) {
+      if (!(T.wrong[key] || []).length) { T.stars++; T.done[T.phase] = true; }
+      T.phase++; T.fb = ''; T.tries = 0;
+      if (T.phase > 3) finishTask();
+      render();
+      const act = document.querySelector('.phase.active') || document.querySelector('.finish');
+      if (act) act.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      const inp = $('#ans'); if (inp) inp.focus({ preventScroll: true });
+    } else {
+      (T.wrong[key] = T.wrong[key] || []).push(idx);
+      T.fb = key === 'g' ? 'Noch nicht. Lies die Frage am Ende der Geschichte noch einmal.'
+           : key === 'p' ? 'Noch nicht. Überlege: Was musst du zuerst ausrechnen?'
+           : 'Noch nicht. Passt die Zahl? Passt die Einheit? Beantwortet der Satz die Frage?';
+      render();
+      const act = document.querySelector('.phase.active'); if (act) act.scrollIntoView({ block: 'center' });
+    }
+  }));
+  const f = $('#calcform');
+  if (f) f.addEventListener('submit', e => {
+    e.preventDefault();
+    const s = t.steps[g][T.step];
+    const raw = $('#ans').value;
+    const v = parseInput(raw, g);
+    if (raw.trim() === '') { T.fb = 'Tippe zuerst ein Ergebnis ein.'; T.fbClass = 'no'; render(); $('#ans').focus(); return; }
+    if (Number.isNaN(v)) { T.fb = 'Schreibe nur die Zahl, zum Beispiel ' + (g === 6 ? '12,75' : '348') + '.'; T.fbClass = 'no'; render(); $('#ans').focus(); return; }
+    if (Math.abs(v - s[2]) < 1e-6) {
+      if (T.tries === 0) T.stars++;
+      T.results.push(v); T.tries = 0; T.fb = ''; T.fbClass = '';
+      T.step++;
+      if (T.step >= t.steps[g].length) { T.done[2] = T.results.length && !T.calcMiss; T.phase = 3; }
+      render();
+      const act = document.querySelector('.phase.active'); if (act) act.scrollIntoView({ block: 'center' });
+      const inp = $('#ans'); if (inp) inp.focus({ preventScroll: true });
+    } else {
+      T.tries++; T.calcMiss = true;
+      T.fb = T.tries >= 2 ? 'Noch nicht richtig. Schau dir den Tipp an.' : 'Noch nicht richtig. Rechne noch einmal nach' + (g === 6 ? ' – Komma unter Komma!' : '.');
+      T.fbClass = 'no';
+      render();
+      const inp = $('#ans'); if (inp) { inp.value = raw; inp.classList.add('bad'); inp.focus(); inp.select(); }
+    }
+  });
+}
+
+function finishTask() {
+  const T = S.task, p = prog(S.grade);
+  const old = p[T.i] || {};
+  p[T.i] = { done: true, stars: Math.max(T.stars, old.stars || 0) };
+  save();
+}
+
+function viewFinish() {
+  const g = S.grade, p = prog(g);
+  const rows = TASKS.map((t, i) => `<tr><td>${i + 1}. ${t.title}</td><td>${'★'.repeat((p[i] || {}).stars || 0)}<span class="muted">${'☆'.repeat(maxStars(t, g) - ((p[i] || {}).stars || 0))}</span></td></tr>`).join('');
+  const ts = totalStars(g), tm = totalMax(g);
+  const msg = ts >= tm * 0.85 ? 'Super! Du bist ein echter Sachaufgaben-Profi.' : ts >= tm * 0.6 ? 'Gut gemacht! Wiederhole die Stationen mit wenigen Sternen.' : 'Du hast es geschafft! Übe die Stationen noch einmal – dann klappt es beim ersten Versuch.';
+  return `${header(`<span class="chip grade">${g}. Klasse</span>`)}
+  <div class="finish">
+    <div class="eyebrow">Ziel erreicht</div>
+    <div class="bigstars pop">★ ${ts} / ${tm}</div>
+    <h2>${msg}</h2>
+    <div class="tablewrap"><table>${rows}</table></div>
+    <div class="navrow" style="justify-content:center">
+      <button class="btn ghost" data-go="map">Zu den Stationen</button>
+      <button class="btn ghost" data-reset="${g}" id="resetbtn">Rallye neu starten</button>
+    </div>
+  </div>`;
+}
+
+function bindCommon() {
+  document.querySelectorAll('[data-grade]').forEach(b => b.addEventListener('click', () => setGrade(+b.dataset.grade)));
+  document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => startTask(+b.dataset.open)));
+  document.querySelectorAll('[data-retry]').forEach(b => b.addEventListener('click', () => startTask(+b.dataset.retry)));
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+    S.view = b.dataset.go;
+    if (S.view === 'start') document.body.classList.remove('g6');
+    render();
+  }));
+  document.querySelectorAll('[data-reset]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.confirm) { S.saved[S.grade] = {}; save(); S.view = 'map'; render(); }
+    else { b.dataset.confirm = '1'; b.textContent = 'Wirklich alle Sterne löschen?'; }
+  }));
+}
+
+(function boot() {
+  const h = (location.hash || '').toLowerCase();
+  const g = h === '#klasse5' ? 5 : h === '#klasse6' ? 6 : +(META('lernwelt-klasse') || 0);
+  if (g === 5 || g === 6) setGrade(g); else render();
+})();
+</script>
+</body>
+</html>

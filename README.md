@@ -42,6 +42,19 @@ Hinweise zu den Verfahren:
 - **Multiplikation:** Erst wird ohne Komma gerechnet. Dann zählen die Kinder die Stellen nach dem Komma und streichen sie im Ergebnis von rechts ab.
 - **Division:** Geführt mit „Wie oft passt …?“. Wer das Komma überschreitet, setzt im Ergebnis das Komma. In Stufe 2 fragt die Lernwelt zuerst, um wie viele Stellen das Komma verschoben wird, und dann nach der neuen Aufgabe.
 
+## Extra: Sachaufgaben-Rallye
+
+Auf der Startseite gibt es unter den Bergen die Karte **Sachaufgaben-Rallye** (`sachaufgaben-rallye.html`).
+Sechs Sachaufgaben mit denselben Geschichten für die 5. und 6. Klasse: Die 5. Klasse rechnet mit ganzen Zahlen, die 6. Klasse mit Kommazahlen.
+So kann die ganze Klasse eine Aufgabe gemeinsam besprechen, und danach löst jedes Kind allein.
+
+Ablauf pro Station: Was ist gesucht? → Welcher Rechenweg passt? → Zwischenergebnisse rechnen (im Heft) und eintippen → richtigen Antwortsatz wählen.
+Für jeden Schritt, der im ersten Versuch klappt, gibt es einen Stern. Nach zwei Fehlversuchen beim Rechnen erscheint ein Tipp mit der Rechnung.
+
+Die Rallye startet in dieser Lernwelt direkt mit der 6. Klasse. Klasse wechseln geht über „← Klasse wechseln“.
+Direkte Links: `sachaufgaben-rallye.html#klasse5` oder `sachaufgaben-rallye.html#klasse6`.
+Die Rallye liegt auch im Ordner `einzeldatei/` und funktioniert dort ohne Internet zusammen mit der Einzeldatei.
+
 ## Bedienung
 
 Die Lernwelt funktioniert mit Maus, Tastatur und auf dem Tablet. Auf dem Bildschirm gibt es ein Zahlenfeld mit **Komma-Taste** bei den Dezimalzahlen und **Minus-Taste** bei den rationalen Zahlen.
